@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campaign ROI Calculator & Report Generator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Campaign ROI Calculator</h1>
+    <p class="subtitle">Calculate metrics manually or upload a CSV to generate a full campaign report</p>
+  </header>
+
+  <main>
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab active" data-tab="manual">Manual Entry</button>
+      <button class="tab" data-tab="csv">CSV Upload &amp; Report</button>
+    </div>
+
+    <!-- Manual Entry Tab -->
+    <section id="manual" class="tab-content active">
+      <form id="manual-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="campaign-name">Campaign Name</label>
+            <input type="text" id="campaign-name" placeholder="e.g. Summer Launch Q3" required>
+          </div>
+          <div class="form-group">
+            <label for="platform">Platform</label>
+            <select id="platform">
+              <option value="Instagram">Instagram</option>
+              <option value="TikTok">TikTok</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Twitter/X">Twitter/X</option>
+              <option value="Facebook">Facebook</option>
+              <option value="LinkedIn">LinkedIn</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="spend">Total Spend ($)</label>
+            <input type="number" id="spend" placeholder="e.g. 5000" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="impressions">Impressions</label>
+            <input type="number" id="impressions" placeholder="e.g. 250000" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="clicks">Clicks</label>
+            <input type="number" id="clicks" placeholder="e.g. 5000" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="conversions">Conversions</label>
+            <input type="number" id="conversions" placeholder="e.g. 150" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="revenue">Revenue Generated ($)</label>
+            <input type="number" id="revenue" placeholder="e.g. 12000" min="0" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="engagements">Engagements (likes, comments, shares)</label>
+            <input type="number" id="engagements" placeholder="e.g. 8500" min="0" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Calculate ROI</button>
+      </form>
+
+      <div id="manual-results" class="results-panel hidden">
+        <h2>Results: <span id="result-campaign-name"></span></h2>
+        <p class="result-platform" id="result-platform"></p>
+        <div class="metrics-grid" id="metrics-grid"></div>
+      </div>
+    </section>
+
+    <!-- CSV Upload Tab -->
+    <section id="csv" class="tab-content">
+      <div class="csv-upload-area">
+        <div class="upload-box" id="drop-zone">
+          <div class="upload-icon">&#128196;</div>
+          <p>Drag & drop your CSV file here</p>
+          <p class="upload-hint">or click to browse</p>
+          <input type="file" id="csv-input" accept=".csv" hidden>
+        </div>
+        <div class="csv-format-help">
+          <h3>Expected CSV Format</h3>
+          <p>Your CSV should have these columns (order doesn't matter):</p>
+          <code>campaign_name, platform, spend, impressions, clicks, conversions, revenue, engagements</code>
+          <button class="btn btn-secondary" id="download-sample">Download Sample CSV</button>
+        </div>
+      </div>
+
+      <div id="csv-results" class="hidden">
+        <div class="report-header">
+          <h2>Campaign Performance Report</h2>
+          <p class="report-date" id="report-date"></p>
+          <div class="report-actions">
+            <button class="btn btn-primary" id="download-report-csv">Download Report CSV</button>
+            <button class="btn btn-secondary" id="print-report">Print Report</button>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards" id="summary-cards"></div>
+
+        <!-- Charts -->
+        <div class="charts-container">
+          <div class="chart-box">
+            <h3>Spend vs Revenue by Campaign</h3>
+            <canvas id="chart-spend-revenue"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>ROI % by Campaign</h3>
+            <canvas id="chart-roi"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Engagement Rate by Campaign</h3>
+            <canvas id="chart-engagement"></canvas>
+          </div>
+          <div class="chart-box">
+            <h3>Spend Distribution by Platform</h3>
+            <canvas id="chart-platform"></canvas>
+          </div>
+        </div>
+
+        <!-- Campaign Table -->
+        <div class="table-container">
+          <h3>Detailed Campaign Breakdown</h3>
+          <div class="table-scroll">
+            <table id="report-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Campaign ROI Calculator &mdash; Built for marketers who'd rather automate than spreadsheet.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
