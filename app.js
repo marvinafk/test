@@ -122,9 +122,9 @@ function calculateTwitchMetrics() {
   // Show/hide ROI field and calculate if Creator Rate is provided
   if (creatorRate > 0) {
     twitchROIGroup.style.display = 'block';
-    // ROI = (EMV - Creator Rate) / Creator Rate * 100
-    const roi = ((emv - creatorRate) / creatorRate) * 100;
-    const roiClass = roi >= 0 ? 'positive' : 'negative';
+    // ROI = (EMV / Creator Rate) * 100
+    const roi = (emv / creatorRate) * 100;
+    const roiClass = roi >= 100 ? 'positive' : 'negative';
     twitchROI.value = roi.toFixed(2) + '%';
     twitchROI.className = 'calculated-field ' + roiClass;
   } else {
