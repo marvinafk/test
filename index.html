@@ -48,6 +48,8 @@
         <!-- Twitch Fields -->
         <div id="twitch-fields" class="platform-fields hidden">
           <h3 class="platform-section-title">Twitch Metrics</h3>
+
+          <!-- Input Fields -->
           <div class="form-grid">
             <div class="form-group">
               <label for="twitch-accv">ACCV (Average Concurrent Viewers)</label>
@@ -58,20 +60,27 @@
               <input type="number" id="twitch-hours-streamed" placeholder="e.g. 120" min="0" step="0.1">
             </div>
             <div class="form-group">
-              <label for="twitch-hours-watched">Total Hours Watched</label>
-              <input type="text" id="twitch-hours-watched" readonly class="calculated-field">
-            </div>
-            <div class="form-group">
-              <label for="twitch-emv">Estimated Media Value (USD)</label>
-              <input type="text" id="twitch-emv" readonly class="calculated-field">
-            </div>
-            <div class="form-group">
               <label for="twitch-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
               <input type="number" id="twitch-creator-rate" placeholder="e.g. 5000" min="0" step="0.01">
             </div>
-            <div class="form-group" id="twitch-roi-group" style="display: none;">
-              <label for="twitch-roi">ROI</label>
-              <input type="text" id="twitch-roi" readonly class="calculated-field">
+          </div>
+
+          <!-- Results -->
+          <div class="results-section">
+            <h4 class="results-title">Results</h4>
+            <div class="results-grid">
+              <div class="result-box">
+                <label for="twitch-hours-watched">Total Hours Watched</label>
+                <input type="text" id="twitch-hours-watched" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box">
+                <label for="twitch-emv">Estimated Media Value (USD)</label>
+                <input type="text" id="twitch-emv" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box" id="twitch-roi-group" style="display: none;">
+                <label for="twitch-roi">ROI</label>
+                <input type="text" id="twitch-roi" readonly class="calculated-field result-field">
+              </div>
             </div>
           </div>
         </div>

@@ -493,6 +493,42 @@ footer {
   margin-left: 0.25rem;
 }
 
+/* === Results Section === */
+.results-section {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #333;
+}
+
+.results-title {
+  font-size: 0.9rem;
+  color: var(--afk-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.result-box label {
+  display: block;
+  font-weight: 400;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  color: var(--afk-white);
+}
+
+.result-field {
+  padding: 1rem 1rem !important;
+  font-size: 1.25rem !important;
+  text-align: center;
+}
+
 .coming-soon {
   color: var(--afk-grey);
   font-style: italic;
