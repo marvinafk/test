@@ -264,8 +264,8 @@ function buildTable(campaigns) {
     <td>${c.platform}</td>
     <td>${formatCurrency(c.spend)}</td>
     <td>${formatCurrency(c.revenue)}</td>
-    <td style="color: ${c.profit >= 0 ? '#0a8754' : '#d32f2f'}">${formatCurrency(c.profit)}</td>
-    <td style="color: ${c.roi >= 0 ? '#0a8754' : '#d32f2f'}">${formatPercent(c.roi)}</td>
+    <td style="color: ${c.profit >= 0 ? '#8FDDAD' : '#E79B81'}">${formatCurrency(c.profit)}</td>
+    <td style="color: ${c.roi >= 0 ? '#8FDDAD' : '#E79B81'}">${formatPercent(c.roi)}</td>
     <td>${c.roas.toFixed(2)}x</td>
     <td>${formatCurrency(c.cpm)}</td>
     <td>${formatCurrency(c.cpc)}</td>
@@ -285,10 +285,11 @@ function drawCharts(campaigns) {
   chartInstances = [];
 
   const labels = campaigns.map(c => c.campaign_name);
+  // AFK Brand Colors
   const colors = [
-    '#0f3460', '#e94560', '#0a8754', '#f0a500',
-    '#533483', '#2b9eb3', '#d63384', '#6f42c1',
-    '#20c997', '#fd7e14', '#0dcaf0', '#6610f2'
+    '#A985DE', '#89BEED', '#8FDDAD', '#ECE970',
+    '#E79B81', '#ECE1F9', '#E1EFFA', '#E2F7EA',
+    '#F6F6C2', '#F5E5E3', '#888888', '#FFFFFF'
   ];
 
   // Chart 1: Spend vs Revenue (bar chart)
@@ -302,12 +303,12 @@ function drawCharts(campaigns) {
           {
             label: 'Spend',
             data: campaigns.map(c => c.spend),
-            backgroundColor: '#0f3460',
+            backgroundColor: '#A985DE',
           },
           {
             label: 'Revenue',
             data: campaigns.map(c => c.revenue),
-            backgroundColor: '#0a8754',
+            backgroundColor: '#8FDDAD',
           }
         ]
       },
@@ -336,7 +337,7 @@ function drawCharts(campaigns) {
         datasets: [{
           label: 'ROI %',
           data: campaigns.map(c => c.roi),
-          backgroundColor: campaigns.map(c => c.roi >= 0 ? '#0a8754' : '#d32f2f'),
+          backgroundColor: campaigns.map(c => c.roi >= 0 ? '#8FDDAD' : '#E79B81'),
         }]
       },
       options: {
@@ -361,7 +362,7 @@ function drawCharts(campaigns) {
         datasets: [{
           label: 'Engagement Rate %',
           data: campaigns.map(c => c.engagement_rate),
-          backgroundColor: '#2b9eb3',
+          backgroundColor: '#89BEED',
         }]
       },
       options: {

@@ -1,3 +1,25 @@
+/* === AFK Brand Colors === */
+:root {
+  /* Core */
+  --afk-black: #000000;
+  --afk-white: #FFFFFF;
+  --afk-grey: #888888;
+
+  /* Primary */
+  --afk-purple: #A985DE;
+  --afk-blue: #89BEED;
+  --afk-green: #8FDDAD;
+  --afk-yellow: #ECE970;
+  --afk-orange: #E79B81;
+
+  /* Secondary (Light) */
+  --afk-purple-light: #ECE1F9;
+  --afk-blue-light: #E1EFFA;
+  --afk-green-light: #E2F7EA;
+  --afk-yellow-light: #F6F6C2;
+  --afk-orange-light: #F5E5E3;
+}
+
 /* === Reset & Base === */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -6,30 +28,34 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
-  background: #f5f7fa;
-  color: #1a1a2e;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+  background: var(--afk-black);
+  color: var(--afk-white);
   line-height: 1.6;
   min-height: 100vh;
+  font-weight: 300;
 }
 
 /* === Header === */
 header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  color: #fff;
+  background: var(--afk-black);
+  color: var(--afk-white);
   text-align: center;
   padding: 2.5rem 1rem;
+  border-bottom: 1px solid #222;
 }
 
 header h1 {
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 400;
   margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  color: #a8b2d1;
+  color: var(--afk-grey);
   font-size: 1.05rem;
+  font-weight: 300;
 }
 
 /* === Main === */
@@ -44,7 +70,7 @@ main {
   display: flex;
   gap: 0;
   margin-bottom: 2rem;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 1px solid #333;
 }
 
 .tab {
@@ -52,20 +78,21 @@ main {
   background: none;
   border: none;
   font-size: 1rem;
-  font-weight: 600;
-  color: #666;
+  font-weight: 400;
+  color: var(--afk-grey);
   cursor: pointer;
-  border-bottom: 3px solid transparent;
+  border-bottom: 2px solid transparent;
   transition: all 0.2s;
+  font-family: inherit;
 }
 
 .tab:hover {
-  color: #0f3460;
+  color: var(--afk-white);
 }
 
 .tab.active {
-  color: #0f3460;
-  border-bottom-color: #0f3460;
+  color: var(--afk-white);
+  border-bottom-color: var(--afk-purple);
 }
 
 /* === Tab Content === */
@@ -87,76 +114,90 @@ main {
 
 .form-group label {
   display: block;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 0.9rem;
   margin-bottom: 0.35rem;
-  color: #333;
+  color: var(--afk-white);
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 0.65rem 0.85rem;
-  border: 1.5px solid #d0d5dd;
-  border-radius: 8px;
+  border: 1px solid #333;
+  border-radius: 4px;
   font-size: 0.95rem;
   transition: border-color 0.2s;
-  background: #fff;
+  background: #111;
+  color: var(--afk-white);
+  font-family: inherit;
+}
+
+.form-group input::placeholder {
+  color: var(--afk-grey);
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #0f3460;
-  box-shadow: 0 0 0 3px rgba(15, 52, 96, 0.1);
+  border-color: var(--afk-purple);
+  box-shadow: 0 0 0 2px rgba(169, 133, 222, 0.2);
+}
+
+.form-group select option {
+  background: #111;
+  color: var(--afk-white);
 }
 
 /* === Buttons === */
 .btn {
   padding: 0.7rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.2s;
+  font-family: inherit;
 }
 
 .btn-primary {
-  background: #0f3460;
-  color: #fff;
+  background: var(--afk-purple);
+  color: var(--afk-black);
 }
 
 .btn-primary:hover {
-  background: #1a4a7a;
+  background: #b99ae3;
   transform: translateY(-1px);
 }
 
 .btn-secondary {
-  background: #e8ecf1;
-  color: #1a1a2e;
+  background: #222;
+  color: var(--afk-white);
+  border: 1px solid #333;
 }
 
 .btn-secondary:hover {
-  background: #d0d5dd;
+  background: #333;
 }
 
 /* === Results Panel (Manual) === */
 .results-panel {
   margin-top: 2rem;
   padding: 2rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  background: #111;
+  border-radius: 8px;
+  border: 1px solid #222;
 }
 
 .results-panel h2 {
   font-size: 1.3rem;
   margin-bottom: 0.25rem;
+  font-weight: 400;
 }
 
 .result-platform {
-  color: #666;
+  color: var(--afk-grey);
   margin-bottom: 1.5rem;
   font-size: 0.95rem;
 }
@@ -168,33 +209,33 @@ main {
 }
 
 .metric-card {
-  background: #f5f7fa;
-  border-radius: 10px;
+  background: #1a1a1a;
+  border-radius: 6px;
   padding: 1.25rem;
   text-align: center;
-  border: 1px solid #e8ecf1;
+  border: 1px solid #222;
 }
 
 .metric-card .metric-value {
   font-size: 1.6rem;
-  font-weight: 700;
-  color: #0f3460;
+  font-weight: 400;
+  color: var(--afk-purple);
 }
 
 .metric-card .metric-label {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--afk-grey);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 0.3rem;
 }
 
 .metric-card.positive .metric-value {
-  color: #0a8754;
+  color: var(--afk-green);
 }
 
 .metric-card.negative .metric-value {
-  color: #d32f2f;
+  color: var(--afk-orange);
 }
 
 /* === CSV Upload === */
@@ -206,19 +247,19 @@ main {
 }
 
 .upload-box {
-  border: 2px dashed #c0c7d1;
-  border-radius: 12px;
+  border: 1px dashed #444;
+  border-radius: 8px;
   padding: 3rem 2rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
-  background: #fff;
+  background: #111;
 }
 
 .upload-box:hover,
 .upload-box.dragover {
-  border-color: #0f3460;
-  background: #f0f4ff;
+  border-color: var(--afk-purple);
+  background: #1a1a1a;
 }
 
 .upload-icon {
@@ -227,37 +268,39 @@ main {
 }
 
 .upload-hint {
-  color: #888;
+  color: var(--afk-grey);
   font-size: 0.9rem;
 }
 
 .csv-format-help {
-  background: #fff;
+  background: #111;
   padding: 1.5rem;
-  border-radius: 12px;
-  border: 1px solid #e8ecf1;
+  border-radius: 8px;
+  border: 1px solid #222;
 }
 
 .csv-format-help h3 {
   margin-bottom: 0.5rem;
   font-size: 1rem;
+  font-weight: 400;
 }
 
 .csv-format-help p {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--afk-grey);
   margin-bottom: 0.75rem;
 }
 
 .csv-format-help code {
   display: block;
-  background: #f5f7fa;
+  background: #1a1a1a;
   padding: 0.75rem;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 0.82rem;
-  color: #0f3460;
+  color: var(--afk-blue);
   margin-bottom: 1rem;
   word-break: break-all;
+  font-family: 'Monaco', 'Menlo', monospace;
 }
 
 /* === Report === */
@@ -268,16 +311,17 @@ main {
   gap: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 1px solid #333;
 }
 
 .report-header h2 {
   font-size: 1.4rem;
   flex: 1;
+  font-weight: 400;
 }
 
 .report-date {
-  color: #666;
+  color: var(--afk-grey);
   font-size: 0.9rem;
   width: 100%;
 }
@@ -296,33 +340,32 @@ main {
 }
 
 .summary-card {
-  background: #fff;
-  border-radius: 10px;
+  background: #111;
+  border-radius: 6px;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border-left: 4px solid #0f3460;
+  border-left: 3px solid var(--afk-purple);
 }
 
 .summary-card .card-label {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--afk-grey);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .summary-card .card-value {
   font-size: 1.5rem;
-  font-weight: 700;
-  color: #1a1a2e;
+  font-weight: 400;
+  color: var(--afk-white);
   margin-top: 0.25rem;
 }
 
 .summary-card.highlight {
-  border-left-color: #0a8754;
+  border-left-color: var(--afk-green);
 }
 
 .summary-card.warn {
-  border-left-color: #d32f2f;
+  border-left-color: var(--afk-orange);
 }
 
 /* === Charts === */
@@ -334,29 +377,31 @@ main {
 }
 
 .chart-box {
-  background: #fff;
-  border-radius: 12px;
+  background: #111;
+  border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #222;
 }
 
 .chart-box h3 {
   font-size: 0.95rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: var(--afk-white);
+  font-weight: 400;
 }
 
 /* === Table === */
 .table-container {
-  background: #fff;
-  border-radius: 12px;
+  background: #111;
+  border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #222;
 }
 
 .table-container h3 {
   margin-bottom: 1rem;
   font-size: 1rem;
+  font-weight: 400;
 }
 
 .table-scroll {
@@ -370,58 +415,61 @@ table {
 }
 
 thead th {
-  background: #f5f7fa;
+  background: #1a1a1a;
   padding: 0.75rem;
   text-align: left;
-  font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #e0e0e0;
+  font-weight: 400;
+  color: var(--afk-white);
+  border-bottom: 1px solid #333;
   white-space: nowrap;
 }
 
 tbody td {
   padding: 0.7rem 0.75rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #222;
 }
 
 tbody tr:hover {
-  background: #f8f9fb;
+  background: #1a1a1a;
 }
 
 /* === Footer === */
 footer {
   text-align: center;
   padding: 2rem 1rem;
-  color: #888;
+  color: var(--afk-grey);
   font-size: 0.85rem;
+  border-top: 1px solid #222;
 }
 
 /* === Platform Fields === */
 .platform-fields {
-  background: #fff;
-  border-radius: 12px;
+  background: #111;
+  border-radius: 8px;
   padding: 1.5rem;
   margin-top: 1.5rem;
-  border: 1px solid #e8ecf1;
+  border: 1px solid #222;
 }
 
 .platform-section-title {
   font-size: 1.1rem;
-  color: #0f3460;
+  color: var(--afk-purple);
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e8ecf1;
+  border-bottom: 1px solid #222;
+  font-weight: 400;
 }
 
 .calculated-field {
-  background: #e8f4ec !important;
-  color: #0a8754 !important;
-  font-weight: 600;
+  background: #1a1a1a !important;
+  color: var(--afk-green) !important;
+  font-weight: 400;
   cursor: not-allowed;
+  border-color: #2a2a2a !important;
 }
 
 .coming-soon {
-  color: #888;
+  color: var(--afk-grey);
   font-style: italic;
   padding: 2rem;
   text-align: center;
@@ -448,6 +496,7 @@ footer {
 
   body {
     background: #fff;
+    color: #000;
   }
 }
 
