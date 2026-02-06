@@ -103,11 +103,15 @@ const twitchEMV = document.getElementById('twitch-emv');
 const twitchCreatorRate = document.getElementById('twitch-creator-rate');
 const twitchROI = document.getElementById('twitch-roi');
 const twitchROIGroup = document.getElementById('twitch-roi-group');
+const twitchEngagement = document.getElementById('twitch-engagement');
+const twitchEngagementRate = document.getElementById('twitch-engagement-rate');
+const twitchEngagementRateGroup = document.getElementById('twitch-engagement-rate-group');
 
 function calculateTwitchMetrics() {
   const accv = parseFloat(twitchACCV.value) || 0;
   const hoursStreamed = parseFloat(twitchHoursStreamed.value) || 0;
   const creatorRate = parseFloat(twitchCreatorRate.value) || 0;
+  const engagement = parseFloat(twitchEngagement.value) || 0;
 
   // Total Hours Watched = ACCV * Total Hours Streamed
   const hoursWatched = accv * hoursStreamed;
@@ -115,21 +119,33 @@ function calculateTwitchMetrics() {
   // Estimated Media Value = Total Hours Watched * $1.2 USD
   const emv = hoursWatched * 1.2;
 
-  // Display calculated values
+  // Display calculated values with proper number formatting
   twitchHoursWatched.value = hoursWatched.toLocaleString('en-US', { maximumFractionDigits: 1 });
   twitchEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 
   // Show/hide ROI field and calculate if Creator Rate is provided
   if (creatorRate > 0) {
     twitchROIGroup.style.display = 'block';
-    // ROI = (EMV / Creator Rate) * 100
-    const roi = (emv / creatorRate) * 100;
-    const roiClass = roi >= 100 ? 'positive' : 'negative';
-    twitchROI.value = roi.toFixed(2) + '%';
-    twitchROI.className = 'calculated-field ' + roiClass;
+    // ROI = EMV / Creator Rate
+    const roi = emv / creatorRate;
+    const roiClass = roi >= 1 ? 'positive' : 'negative';
+    twitchROI.value = roi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    twitchROI.className = 'calculated-field result-field ' + roiClass;
   } else {
     twitchROIGroup.style.display = 'none';
     twitchROI.value = '';
+  }
+
+  // Show/hide Engagement Rate field and calculate if Engagement is provided
+  if (engagement > 0 && hoursWatched > 0) {
+    twitchEngagementRateGroup.style.display = 'block';
+    // Engagement Rate = (Engagement / Hours Watched) * 100
+    const engagementRate = (engagement / hoursWatched) * 100;
+    twitchEngagementRate.value = engagementRate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+    twitchEngagementRate.className = 'calculated-field result-field';
+  } else {
+    twitchEngagementRateGroup.style.display = 'none';
+    twitchEngagementRate.value = '';
   }
 }
 
@@ -137,6 +153,7 @@ function calculateTwitchMetrics() {
 twitchACCV.addEventListener('input', calculateTwitchMetrics);
 twitchHoursStreamed.addEventListener('input', calculateTwitchMetrics);
 twitchCreatorRate.addEventListener('input', calculateTwitchMetrics);
+twitchEngagement.addEventListener('input', calculateTwitchMetrics);
 
 // --- YouTube Auto-Calculations ---
 const youtubeViews = document.getElementById('youtube-views');
@@ -144,34 +161,62 @@ const youtubeCreatorRate = document.getElementById('youtube-creator-rate');
 const youtubeEMV = document.getElementById('youtube-emv');
 const youtubeROI = document.getElementById('youtube-roi');
 const youtubeROIGroup = document.getElementById('youtube-roi-group');
+const youtubeCPM = document.getElementById('youtube-cpm');
+const youtubeCPMGroup = document.getElementById('youtube-cpm-group');
+const youtubeEngagement = document.getElementById('youtube-engagement');
+const youtubeEngagementRate = document.getElementById('youtube-engagement-rate');
+const youtubeEngagementRateGroup = document.getElementById('youtube-engagement-rate-group');
 
 function calculateYouTubeMetrics() {
   const views = parseFloat(youtubeViews.value) || 0;
   const creatorRate = parseFloat(youtubeCreatorRate.value) || 0;
+  const engagement = parseFloat(youtubeEngagement.value) || 0;
 
-  // Estimated Media Value = Views * $0.05 USD (industry standard CPV)
-  const emv = views * 0.05;
+  // Estimated Media Value = Total Views * $100 / 1000 = Views * 0.1
+  const emv = views * 0.1;
 
-  // Display calculated values
+  // Display calculated values with proper number formatting
   youtubeEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 
-  // Show/hide ROI field and calculate if Creator Rate is provided
-  if (creatorRate > 0) {
+  // Show/hide ROI and Actual CPM fields if Creator Rate is provided
+  if (creatorRate > 0 && views > 0) {
     youtubeROIGroup.style.display = 'block';
-    // ROI = (EMV / Creator Rate) * 100
-    const roi = (emv / creatorRate) * 100;
-    const roiClass = roi >= 100 ? 'positive' : 'negative';
-    youtubeROI.value = roi.toFixed(2) + '%';
+    youtubeCPMGroup.style.display = 'block';
+
+    // ROI = EMV / Creator Rate
+    const roi = emv / creatorRate;
+    const roiClass = roi >= 1 ? 'positive' : 'negative';
+    youtubeROI.value = roi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     youtubeROI.className = 'calculated-field result-field ' + roiClass;
+
+    // Actual CPM = (Creator Rate / Total Views) * 1000
+    const cpm = (creatorRate / views) * 1000;
+    youtubeCPM.value = '$' + cpm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+    youtubeCPM.className = 'calculated-field result-field';
   } else {
     youtubeROIGroup.style.display = 'none';
+    youtubeCPMGroup.style.display = 'none';
     youtubeROI.value = '';
+    youtubeCPM.value = '';
+  }
+
+  // Show/hide Engagement Rate field if Engagement is provided
+  if (engagement > 0 && views > 0) {
+    youtubeEngagementRateGroup.style.display = 'block';
+    // Engagement Rate = (Engagement / Total Views) * 100
+    const engagementRate = (engagement / views) * 100;
+    youtubeEngagementRate.value = engagementRate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+    youtubeEngagementRate.className = 'calculated-field result-field';
+  } else {
+    youtubeEngagementRateGroup.style.display = 'none';
+    youtubeEngagementRate.value = '';
   }
 }
 
 // Calculate whenever inputs change
 youtubeViews.addEventListener('input', calculateYouTubeMetrics);
 youtubeCreatorRate.addEventListener('input', calculateYouTubeMetrics);
+youtubeEngagement.addEventListener('input', calculateYouTubeMetrics);
 
 // --- TikTok Auto-Calculations ---
 const tiktokViews = document.getElementById('tiktok-views');
@@ -179,34 +224,62 @@ const tiktokCreatorRate = document.getElementById('tiktok-creator-rate');
 const tiktokEMV = document.getElementById('tiktok-emv');
 const tiktokROI = document.getElementById('tiktok-roi');
 const tiktokROIGroup = document.getElementById('tiktok-roi-group');
+const tiktokCPM = document.getElementById('tiktok-cpm');
+const tiktokCPMGroup = document.getElementById('tiktok-cpm-group');
+const tiktokEngagement = document.getElementById('tiktok-engagement');
+const tiktokEngagementRate = document.getElementById('tiktok-engagement-rate');
+const tiktokEngagementRateGroup = document.getElementById('tiktok-engagement-rate-group');
 
 function calculateTikTokMetrics() {
   const views = parseFloat(tiktokViews.value) || 0;
   const creatorRate = parseFloat(tiktokCreatorRate.value) || 0;
+  const engagement = parseFloat(tiktokEngagement.value) || 0;
 
-  // Estimated Media Value = Views * $0.02 USD (TikTok CPV rate)
-  const emv = views * 0.02;
+  // Estimated Media Value = Total Views * $30 / 1000 = Views * 0.03
+  const emv = views * 0.03;
 
-  // Display calculated values
+  // Display calculated values with proper number formatting
   tiktokEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 
-  // Show/hide ROI field and calculate if Creator Rate is provided
-  if (creatorRate > 0) {
+  // Show/hide ROI and Actual CPM fields if Creator Rate is provided
+  if (creatorRate > 0 && views > 0) {
     tiktokROIGroup.style.display = 'block';
-    // ROI = (EMV / Creator Rate) * 100
-    const roi = (emv / creatorRate) * 100;
-    const roiClass = roi >= 100 ? 'positive' : 'negative';
-    tiktokROI.value = roi.toFixed(2) + '%';
+    tiktokCPMGroup.style.display = 'block';
+
+    // ROI = EMV / Creator Rate
+    const roi = emv / creatorRate;
+    const roiClass = roi >= 1 ? 'positive' : 'negative';
+    tiktokROI.value = roi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     tiktokROI.className = 'calculated-field result-field ' + roiClass;
+
+    // Actual CPM = (Creator Rate / Total Views) * 1000
+    const cpm = (creatorRate / views) * 1000;
+    tiktokCPM.value = '$' + cpm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+    tiktokCPM.className = 'calculated-field result-field';
   } else {
     tiktokROIGroup.style.display = 'none';
+    tiktokCPMGroup.style.display = 'none';
     tiktokROI.value = '';
+    tiktokCPM.value = '';
+  }
+
+  // Show/hide Engagement Rate field if Engagement is provided
+  if (engagement > 0 && views > 0) {
+    tiktokEngagementRateGroup.style.display = 'block';
+    // Engagement Rate = (Engagement / Total Views) * 100
+    const engagementRate = (engagement / views) * 100;
+    tiktokEngagementRate.value = engagementRate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+    tiktokEngagementRate.className = 'calculated-field result-field';
+  } else {
+    tiktokEngagementRateGroup.style.display = 'none';
+    tiktokEngagementRate.value = '';
   }
 }
 
 // Calculate whenever inputs change
 tiktokViews.addEventListener('input', calculateTikTokMetrics);
 tiktokCreatorRate.addEventListener('input', calculateTikTokMetrics);
+tiktokEngagement.addEventListener('input', calculateTikTokMetrics);
 
 // ============================================================
 // CSV UPLOAD MODE

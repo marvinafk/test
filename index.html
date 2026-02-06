@@ -39,7 +39,7 @@
             <select id="platform">
               <option value="">-- Select Platform --</option>
               <option value="Twitch">Twitch</option>
-              <option value="YouTube">YouTube</option>
+              <option value="YouTube">YouTube (Dedicated)</option>
               <option value="TikTok">TikTok</option>
             </select>
           </div>
@@ -63,6 +63,10 @@
               <label for="twitch-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
               <input type="number" id="twitch-creator-rate" placeholder="e.g. 5000" min="0" step="0.01">
             </div>
+            <div class="form-group">
+              <label for="twitch-engagement">Engagement <span class="optional-label">Optional</span></label>
+              <input type="number" id="twitch-engagement" placeholder="e.g. 25000" min="0">
+            </div>
           </div>
 
           <!-- Results -->
@@ -81,13 +85,17 @@
                 <label for="twitch-roi">ROI</label>
                 <input type="text" id="twitch-roi" readonly class="calculated-field result-field">
               </div>
+              <div class="result-box" id="twitch-engagement-rate-group" style="display: none;">
+                <label for="twitch-engagement-rate">Engagement Rate</label>
+                <input type="text" id="twitch-engagement-rate" readonly class="calculated-field result-field">
+              </div>
             </div>
           </div>
         </div>
 
         <!-- YouTube Fields -->
         <div id="youtube-fields" class="platform-fields hidden">
-          <h3 class="platform-section-title">YouTube Metrics</h3>
+          <h3 class="platform-section-title">YouTube (Dedicated) Metrics</h3>
 
           <!-- Input Fields -->
           <div class="form-grid">
@@ -98,6 +106,10 @@
             <div class="form-group">
               <label for="youtube-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
               <input type="number" id="youtube-creator-rate" placeholder="e.g. 10000" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="youtube-engagement">Engagement <span class="optional-label">Optional</span></label>
+              <input type="number" id="youtube-engagement" placeholder="e.g. 50000" min="0">
             </div>
           </div>
 
@@ -112,6 +124,14 @@
               <div class="result-box" id="youtube-roi-group" style="display: none;">
                 <label for="youtube-roi">ROI</label>
                 <input type="text" id="youtube-roi" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box" id="youtube-cpm-group" style="display: none;">
+                <label for="youtube-cpm">Actual CPM</label>
+                <input type="text" id="youtube-cpm" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box" id="youtube-engagement-rate-group" style="display: none;">
+                <label for="youtube-engagement-rate">Engagement Rate</label>
+                <input type="text" id="youtube-engagement-rate" readonly class="calculated-field result-field">
               </div>
             </div>
           </div>
@@ -131,6 +151,10 @@
               <label for="tiktok-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
               <input type="number" id="tiktok-creator-rate" placeholder="e.g. 3000" min="0" step="0.01">
             </div>
+            <div class="form-group">
+              <label for="tiktok-engagement">Engagement <span class="optional-label">Optional</span></label>
+              <input type="number" id="tiktok-engagement" placeholder="e.g. 100000" min="0">
+            </div>
           </div>
 
           <!-- Results -->
@@ -144,6 +168,14 @@
               <div class="result-box" id="tiktok-roi-group" style="display: none;">
                 <label for="tiktok-roi">ROI</label>
                 <input type="text" id="tiktok-roi" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box" id="tiktok-cpm-group" style="display: none;">
+                <label for="tiktok-cpm">Actual CPM</label>
+                <input type="text" id="tiktok-cpm" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box" id="tiktok-engagement-rate-group" style="display: none;">
+                <label for="tiktok-engagement-rate">Engagement Rate</label>
+                <input type="text" id="tiktok-engagement-rate" readonly class="calculated-field result-field">
               </div>
             </div>
           </div>
@@ -217,7 +249,7 @@
   </main>
 
   <footer>
-    <p>AFK Influencer ROI Calculator &mdash; Built for marketers who'd rather automate than spreadsheet.</p>
+    <p>AFK Influencer ROI Calculator 2026</p>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
