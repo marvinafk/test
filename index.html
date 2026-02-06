@@ -19,59 +19,62 @@
       <button class="tab" data-tab="csv">CSV Upload &amp; Report</button>
     </div>
 
-    <!-- Manual Entry Tab -->
+    <!-- Influencer ROI Calculator Tab -->
     <section id="manual" class="tab-content active">
-      <form id="manual-form">
+      <form id="influencer-form">
+        <!-- Creator Name -->
         <div class="form-grid">
           <div class="form-group">
-            <label for="campaign-name">Campaign Name</label>
-            <input type="text" id="campaign-name" placeholder="e.g. Summer Launch Q3" required>
+            <label for="creator-name">Creator</label>
+            <input type="text" id="creator-name" placeholder="e.g. @ninja, PewDiePie" required>
           </div>
           <div class="form-group">
             <label for="platform">Platform</label>
             <select id="platform">
-              <option value="Instagram">Instagram</option>
-              <option value="TikTok">TikTok</option>
+              <option value="">-- Select Platform --</option>
+              <option value="Twitch">Twitch</option>
               <option value="YouTube">YouTube</option>
-              <option value="Twitter/X">Twitter/X</option>
-              <option value="Facebook">Facebook</option>
-              <option value="LinkedIn">LinkedIn</option>
-              <option value="Other">Other</option>
+              <option value="TikTok">TikTok</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="spend">Total Spend ($)</label>
-            <input type="number" id="spend" placeholder="e.g. 5000" min="0" step="0.01" required>
-          </div>
-          <div class="form-group">
-            <label for="impressions">Impressions</label>
-            <input type="number" id="impressions" placeholder="e.g. 250000" min="0" required>
-          </div>
-          <div class="form-group">
-            <label for="clicks">Clicks</label>
-            <input type="number" id="clicks" placeholder="e.g. 5000" min="0" required>
-          </div>
-          <div class="form-group">
-            <label for="conversions">Conversions</label>
-            <input type="number" id="conversions" placeholder="e.g. 150" min="0" required>
-          </div>
-          <div class="form-group">
-            <label for="revenue">Revenue Generated ($)</label>
-            <input type="number" id="revenue" placeholder="e.g. 12000" min="0" step="0.01" required>
-          </div>
-          <div class="form-group">
-            <label for="engagements">Engagements (likes, comments, shares)</label>
-            <input type="number" id="engagements" placeholder="e.g. 8500" min="0" required>
+        </div>
+
+        <!-- Twitch Fields -->
+        <div id="twitch-fields" class="platform-fields hidden">
+          <h3 class="platform-section-title">Twitch Metrics</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="twitch-accv">ACCV (Average Concurrent Viewers)</label>
+              <input type="number" id="twitch-accv" placeholder="e.g. 5000" min="0">
+            </div>
+            <div class="form-group">
+              <label for="twitch-hours-streamed">Total Hours Streamed</label>
+              <input type="number" id="twitch-hours-streamed" placeholder="e.g. 120" min="0" step="0.1">
+            </div>
+            <div class="form-group">
+              <label for="twitch-hours-watched">Total Hours Watched</label>
+              <input type="text" id="twitch-hours-watched" readonly class="calculated-field">
+            </div>
+            <div class="form-group">
+              <label for="twitch-emv">Estimated Media Value (USD)</label>
+              <input type="text" id="twitch-emv" readonly class="calculated-field">
+            </div>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary">Calculate ROI</button>
-      </form>
 
-      <div id="manual-results" class="results-panel hidden">
-        <h2>Results: <span id="result-campaign-name"></span></h2>
-        <p class="result-platform" id="result-platform"></p>
-        <div class="metrics-grid" id="metrics-grid"></div>
-      </div>
+        <!-- YouTube Fields (placeholder for later) -->
+        <div id="youtube-fields" class="platform-fields hidden">
+          <h3 class="platform-section-title">YouTube Metrics</h3>
+          <p class="coming-soon">YouTube metrics coming soon...</p>
+        </div>
+
+        <!-- TikTok Fields (placeholder for later) -->
+        <div id="tiktok-fields" class="platform-fields hidden">
+          <h3 class="platform-section-title">TikTok Metrics</h3>
+          <p class="coming-soon">TikTok metrics coming soon...</p>
+        </div>
+
+      </form>
     </section>
 
     <!-- CSV Upload Tab -->

@@ -67,61 +67,58 @@ function formatPercent(val) {
 }
 
 // ============================================================
-// MANUAL ENTRY MODE
+// INFLUENCER ROI CALCULATOR
 // ============================================================
-document.getElementById('manual-form').addEventListener('submit', (e) => {
-  e.preventDefault();
 
-  const data = {
-    campaign_name: document.getElementById('campaign-name').value,
-    platform: document.getElementById('platform').value,
-    spend: document.getElementById('spend').value,
-    impressions: document.getElementById('impressions').value,
-    clicks: document.getElementById('clicks').value,
-    conversions: document.getElementById('conversions').value,
-    revenue: document.getElementById('revenue').value,
-    engagements: document.getElementById('engagements').value,
-  };
+// --- Platform Switching ---
+// Show/hide fields based on selected platform
+const platformSelect = document.getElementById('platform');
+const twitchFields = document.getElementById('twitch-fields');
+const youtubeFields = document.getElementById('youtube-fields');
+const tiktokFields = document.getElementById('tiktok-fields');
 
-  const metrics = calculateMetrics(data);
-  displayManualResults(metrics);
+platformSelect.addEventListener('change', () => {
+  const platform = platformSelect.value;
+
+  // Hide all platform fields first
+  twitchFields.classList.add('hidden');
+  youtubeFields.classList.add('hidden');
+  tiktokFields.classList.add('hidden');
+
+  // Show the selected platform's fields
+  if (platform === 'Twitch') {
+    twitchFields.classList.remove('hidden');
+  } else if (platform === 'YouTube') {
+    youtubeFields.classList.remove('hidden');
+  } else if (platform === 'TikTok') {
+    tiktokFields.classList.remove('hidden');
+  }
 });
 
-function displayManualResults(m) {
-  document.getElementById('result-campaign-name').textContent = m.campaign_name;
-  document.getElementById('result-platform').textContent = m.platform;
+// --- Twitch Auto-Calculations ---
+const twitchACCV = document.getElementById('twitch-accv');
+const twitchHoursStreamed = document.getElementById('twitch-hours-streamed');
+const twitchHoursWatched = document.getElementById('twitch-hours-watched');
+const twitchEMV = document.getElementById('twitch-emv');
 
-  const cards = [
-    { label: 'Total Spend', value: formatCurrency(m.spend) },
-    { label: 'Revenue', value: formatCurrency(m.revenue) },
-    { label: 'Net Profit', value: formatCurrency(m.profit), sentiment: m.profit },
-    { label: 'ROI', value: formatPercent(m.roi), sentiment: m.roi },
-    { label: 'ROAS', value: m.roas.toFixed(2) + 'x', sentiment: m.roas - 1 },
-    { label: 'CPM', value: formatCurrency(m.cpm) },
-    { label: 'CPC', value: formatCurrency(m.cpc) },
-    { label: 'CPA', value: formatCurrency(m.cpa) },
-    { label: 'CTR', value: formatPercent(m.ctr) },
-    { label: 'Conversion Rate', value: formatPercent(m.conversion_rate) },
-    { label: 'Engagement Rate', value: formatPercent(m.engagement_rate) },
-    { label: 'Impressions', value: formatNumber(m.impressions) },
-  ];
+function calculateTwitchMetrics() {
+  const accv = parseFloat(twitchACCV.value) || 0;
+  const hoursStreamed = parseFloat(twitchHoursStreamed.value) || 0;
 
-  const grid = document.getElementById('metrics-grid');
-  grid.innerHTML = cards.map(card => {
-    let sentimentClass = '';
-    if (card.sentiment !== undefined) {
-      sentimentClass = card.sentiment >= 0 ? 'positive' : 'negative';
-    }
-    return `
-      <div class="metric-card ${sentimentClass}">
-        <div class="metric-value">${card.value}</div>
-        <div class="metric-label">${card.label}</div>
-      </div>
-    `;
-  }).join('');
+  // Total Hours Watched = ACCV * Total Hours Streamed
+  const hoursWatched = accv * hoursStreamed;
 
-  document.getElementById('manual-results').classList.remove('hidden');
+  // Estimated Media Value = Total Hours Watched * $1.2 USD
+  const emv = hoursWatched * 1.2;
+
+  // Display calculated values
+  twitchHoursWatched.value = hoursWatched.toLocaleString('en-US', { maximumFractionDigits: 1 });
+  twitchEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 }
+
+// Calculate whenever inputs change
+twitchACCV.addEventListener('input', calculateTwitchMetrics);
+twitchHoursStreamed.addEventListener('input', calculateTwitchMetrics);
 
 // ============================================================
 // CSV UPLOAD MODE
