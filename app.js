@@ -361,24 +361,34 @@ function parseCSV(text) {
 }
 
 function processCreatorData(rows, platform) {
+  // Helper to parse numbers that may have commas
+  const parseNum = (val) => {
+    if (!val) return 0;
+    return parseFloat(val.toString().replace(/,/g, '')) || 0;
+  };
+
   return rows.map(row => {
-    const creatorRate = parseFloat(row.creator_rate) || 0;
-    const engagement = parseFloat(row.engagement) || 0;
+    const creatorRate = parseNum(row.creator_rate);
+    const engagement = parseNum(row.engagement);
 
     let views = 0;
     let hoursWatched = 0;
     let emv = 0;
 
-    if (platform === 'Twitch' || row.accv) {
-      const accv = parseFloat(row.accv) || 0;
-      const hoursStreamed = parseFloat(row.hours_streamed) || 0;
+    // Detect platform from row data
+    const isTwitch = row.accv !== undefined && row.accv !== '';
+
+    if (isTwitch) {
+      // Twitch calculations
+      const accv = parseNum(row.accv);
+      const hoursStreamed = parseNum(row.hours_streamed);
       hoursWatched = accv * hoursStreamed;
       views = hoursWatched * 12;
       emv = hoursWatched * 1.2;
-    } else if (row.total_views) {
-      views = parseFloat(row.total_views) || 0;
-      // Detect if TikTok or YouTube based on EMV rate
-      if (uploadedFile.name.toLowerCase().includes('tiktok')) {
+    } else if (row.total_views !== undefined) {
+      views = parseNum(row.total_views);
+      // Detect if TikTok or YouTube based on filename
+      if (uploadedFile && uploadedFile.name.toLowerCase().includes('tiktok')) {
         emv = views * 0.03; // $30 per 1000 views
       } else {
         emv = views * 0.1; // $100 per 1000 views
@@ -394,14 +404,15 @@ function processCreatorData(rows, platform) {
       country: row.country || 'N/A',
       language: row.language || 'N/A',
       genre: row.genre || 'N/A',
-      views,
-      hours_watched: hoursWatched,
-      creator_rate: creatorRate,
-      engagement,
-      emv,
-      roi,
-      cpm,
-      engagement_rate: engagementRate
+      views: Math.round(views * 100) / 100,
+      hours_watched: Math.round(hoursWatched * 100) / 100,
+      creator_rate: Math.round(creatorRate * 100) / 100,
+      engagement: Math.round(engagement * 100) / 100,
+      emv: Math.round(emv * 100) / 100,
+      roi: Math.round(roi * 100) / 100,
+      cpm: Math.round(cpm * 100) / 100,
+      engagement_rate: Math.round(engagementRate * 100) / 100,
+      is_twitch: isTwitch
     };
   });
 }
@@ -410,6 +421,9 @@ function generateCampaignReport(data, campaignName, platform) {
   campaignReport.classList.remove('hidden');
   document.querySelector('.report-upload-section').style.display = 'none';
 
+  // Detect if this is a Twitch campaign
+  const isTwitchCampaign = data.length > 0 && data[0].is_twitch;
+
   // Set campaign title
   document.getElementById('campaign-title').textContent = campaignName;
   document.getElementById('report-date').textContent =
@@ -417,27 +431,39 @@ function generateCampaignReport(data, campaignName, platform) {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 
-  // Calculate totals
+  // Calculate totals - sum all values
   const totals = data.reduce((acc, c) => ({
     creators: acc.creators + 1,
-    totalSpend: acc.totalSpend + c.creator_rate,
+    totalCost: acc.totalCost + c.creator_rate,
     totalEMV: acc.totalEMV + c.emv,
     totalViews: acc.totalViews + c.views,
     totalEngagement: acc.totalEngagement + c.engagement
-  }), { creators: 0, totalSpend: 0, totalEMV: 0, totalViews: 0, totalEngagement: 0 });
+  }), { creators: 0, totalCost: 0, totalEMV: 0, totalViews: 0, totalEngagement: 0 });
 
-  const avgROI = totals.totalSpend > 0 ? totals.totalEMV / totals.totalSpend : 0;
-  const avgEngagementRate = totals.totalViews > 0 ? (totals.totalEngagement / totals.totalViews) * 100 : 0;
+  // Round totals to 2 decimal places
+  totals.totalCost = Math.round(totals.totalCost * 100) / 100;
+  totals.totalEMV = Math.round(totals.totalEMV * 100) / 100;
+  totals.totalViews = Math.round(totals.totalViews * 100) / 100;
 
-  // Summary cards
-  const summaryHTML = [
+  // Overall Campaign ROI = Total EMV / Total Cost
+  const overallROI = totals.totalCost > 0 ? Math.round((totals.totalEMV / totals.totalCost) * 100) / 100 : 0;
+
+  // Build summary cards - exclude engagement rate for Twitch
+  const summaryCards = [
     { label: 'Total Creators', value: totals.creators.toLocaleString(), type: '' },
-    { label: 'Total Investment', value: '$' + totals.totalSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), type: '' },
+    { label: 'Total Cost', value: '$' + totals.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), type: '' },
     { label: 'Total EMV', value: '$' + totals.totalEMV.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), type: 'highlight' },
-    { label: 'Total Views', value: totals.totalViews.toLocaleString(), type: '' },
-    { label: 'Average ROI', value: avgROI.toFixed(2) + 'x', type: avgROI >= 1 ? 'highlight' : 'warn' },
-    { label: 'Avg Engagement Rate', value: avgEngagementRate.toFixed(2) + '%', type: '' },
-  ].map(card => `
+    { label: 'Total Views', value: totals.totalViews.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }), type: '' },
+    { label: 'Overall Campaign ROI', value: overallROI.toFixed(2) + 'x', type: overallROI >= 1 ? 'highlight' : 'warn' },
+  ];
+
+  // Only add engagement rate for non-Twitch campaigns
+  if (!isTwitchCampaign) {
+    const avgEngagementRate = totals.totalViews > 0 ? Math.round((totals.totalEngagement / totals.totalViews) * 10000) / 100 : 0;
+    summaryCards.push({ label: 'Avg Engagement Rate', value: avgEngagementRate.toFixed(2) + '%', type: '' });
+  }
+
+  const summaryHTML = summaryCards.map(card => `
     <div class="summary-card ${card.type}">
       <div class="card-label">${card.label}</div>
       <div class="card-value">${card.value}</div>
@@ -447,19 +473,20 @@ function generateCampaignReport(data, campaignName, platform) {
   document.getElementById('summary-cards').innerHTML = summaryHTML;
 
   // Generate insights
-  generateInsights(data, totals);
+  generateInsights(data, totals, isTwitchCampaign);
 
   // Build table
-  buildReportTable(data);
+  buildReportTable(data, isTwitchCampaign);
 
   // Draw charts
   drawReportCharts(data);
 
   // Store for export
   window._reportData = data;
+  window._isTwitchCampaign = isTwitchCampaign;
 }
 
-function generateInsights(data, totals) {
+function generateInsights(data, totals, isTwitchCampaign) {
   const insights = [];
 
   // Top performer by EMV
@@ -473,7 +500,7 @@ function generateInsights(data, totals) {
 
   // Best ROI
   const topByROI = data.filter(c => c.roi > 0).reduce((max, c) => c.roi > max.roi ? c : max, data[0]);
-  if (topByROI.roi > 0) {
+  if (topByROI && topByROI.roi > 0) {
     insights.push({
       type: 'top-performer',
       title: 'Best ROI',
@@ -482,15 +509,18 @@ function generateInsights(data, totals) {
     });
   }
 
-  // Best engagement rate
-  const topByEngagement = data.filter(c => c.engagement_rate > 0).reduce((max, c) => c.engagement_rate > max.engagement_rate ? c : max, data[0]);
-  if (topByEngagement.engagement_rate > 0) {
-    insights.push({
-      type: 'info',
-      title: 'Highest Engagement',
-      value: topByEngagement.creator_name,
-      detail: topByEngagement.engagement_rate.toFixed(2) + '% engagement rate'
-    });
+  // Best engagement rate - only for non-Twitch campaigns
+  if (!isTwitchCampaign) {
+    const engagementData = data.filter(c => c.engagement_rate > 0);
+    if (engagementData.length > 0) {
+      const topByEngagement = engagementData.reduce((max, c) => c.engagement_rate > max.engagement_rate ? c : max, engagementData[0]);
+      insights.push({
+        type: 'info',
+        title: 'Highest Engagement',
+        value: topByEngagement.creator_name,
+        detail: topByEngagement.engagement_rate.toFixed(2) + '% engagement rate'
+      });
+    }
   }
 
   // Genre performance
@@ -565,28 +595,49 @@ function generateInsights(data, totals) {
   document.getElementById('insights-grid').innerHTML = insightsHTML;
 }
 
-function buildReportTable(data) {
+function buildReportTable(data, isTwitchCampaign) {
   const thead = document.querySelector('#report-table thead');
   const tbody = document.querySelector('#report-table tbody');
 
-  thead.innerHTML = `<tr>
-    <th>Creator</th><th>Country</th><th>Language</th><th>Genre</th>
-    <th>Views</th><th>Creator Rate</th><th>EMV</th><th>ROI</th>
-    <th>Engagement</th><th>Eng. Rate</th>
-  </tr>`;
+  if (isTwitchCampaign) {
+    // Twitch table - no engagement columns
+    thead.innerHTML = `<tr>
+      <th>Creator</th><th>Country</th><th>Language</th><th>Genre</th>
+      <th>Hours Watched</th><th>Views</th><th>Creator Rate</th><th>EMV</th><th>ROI</th>
+    </tr>`;
 
-  tbody.innerHTML = data.map(c => `<tr>
-    <td>${c.creator_name}</td>
-    <td>${c.country}</td>
-    <td>${c.language}</td>
-    <td>${c.genre}</td>
-    <td>${c.views.toLocaleString()}</td>
-    <td>$${c.creator_rate.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-    <td>$${c.emv.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-    <td style="color: ${c.roi >= 1 ? '#8FDDAD' : '#E79B81'}">${c.roi.toFixed(2)}x</td>
-    <td>${c.engagement.toLocaleString()}</td>
-    <td>${c.engagement_rate.toFixed(2)}%</td>
-  </tr>`).join('');
+    tbody.innerHTML = data.map(c => `<tr>
+      <td>${c.creator_name}</td>
+      <td>${c.country}</td>
+      <td>${c.language}</td>
+      <td>${c.genre}</td>
+      <td>${c.hours_watched.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td>${c.views.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td>$${c.creator_rate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td>$${c.emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td style="color: ${c.roi >= 1 ? '#8FDDAD' : '#E79B81'}">${c.roi.toFixed(2)}x</td>
+    </tr>`).join('');
+  } else {
+    // YouTube/TikTok table - includes engagement columns
+    thead.innerHTML = `<tr>
+      <th>Creator</th><th>Country</th><th>Language</th><th>Genre</th>
+      <th>Views</th><th>Creator Rate</th><th>EMV</th><th>ROI</th>
+      <th>Engagement</th><th>Eng. Rate</th>
+    </tr>`;
+
+    tbody.innerHTML = data.map(c => `<tr>
+      <td>${c.creator_name}</td>
+      <td>${c.country}</td>
+      <td>${c.language}</td>
+      <td>${c.genre}</td>
+      <td>${c.views.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td>$${c.creator_rate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td>$${c.emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td style="color: ${c.roi >= 1 ? '#8FDDAD' : '#E79B81'}">${c.roi.toFixed(2)}x</td>
+      <td>${c.engagement.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td>${c.engagement_rate.toFixed(2)}%</td>
+    </tr>`).join('');
+  }
 }
 
 let chartInstances = [];
