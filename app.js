@@ -374,14 +374,16 @@ function processCreatorData(rows, platform) {
     let views = 0;
     let hoursWatched = 0;
     let emv = 0;
+    let accv = 0;
+    let hoursStreamed = 0;
 
     // Detect platform from row data
     const isTwitch = row.accv !== undefined && row.accv !== '';
 
     if (isTwitch) {
       // Twitch calculations
-      const accv = parseNum(row.accv);
-      const hoursStreamed = parseNum(row.hours_streamed);
+      accv = parseNum(row.accv);
+      hoursStreamed = parseNum(row.hours_streamed);
       hoursWatched = accv * hoursStreamed;
       views = hoursWatched * 12;
       emv = hoursWatched * 1.2;
@@ -404,6 +406,8 @@ function processCreatorData(rows, platform) {
       country: row.country || 'N/A',
       language: row.language || 'N/A',
       genre: row.genre || 'N/A',
+      accv: Math.round(accv * 100) / 100,
+      hours_streamed: Math.round(hoursStreamed * 100) / 100,
       views: Math.round(views * 100) / 100,
       hours_watched: Math.round(hoursWatched * 100) / 100,
       creator_rate: Math.round(creatorRate * 100) / 100,
@@ -472,6 +476,9 @@ function generateCampaignReport(data, campaignName, platform) {
 
   document.getElementById('summary-cards').innerHTML = summaryHTML;
 
+  // Generate executive summary paragraph
+  generateExecutiveSummary(data, totals, overallROI, isTwitchCampaign);
+
   // Generate insights
   generateInsights(data, totals, isTwitchCampaign);
 
@@ -479,11 +486,92 @@ function generateCampaignReport(data, campaignName, platform) {
   buildReportTable(data, isTwitchCampaign);
 
   // Draw charts
-  drawReportCharts(data);
+  drawReportCharts(data, totals);
+
+  // Generate recommendations
+  generateRecommendations(data, totals, overallROI, isTwitchCampaign);
 
   // Store for export
   window._reportData = data;
   window._isTwitchCampaign = isTwitchCampaign;
+}
+
+function generateExecutiveSummary(data, totals, overallROI, isTwitchCampaign) {
+  const topPerformer = data.reduce((max, c) => c.emv > max.emv ? c : max, data[0]);
+  const worstPerformer = data.filter(c => c.roi > 0).reduce((min, c) => c.roi < min.roi ? c : min, data[0]);
+
+  // Calculate performance distribution
+  const highPerformers = data.filter(c => c.roi >= 1.5).length;
+  const midPerformers = data.filter(c => c.roi >= 0.8 && c.roi < 1.5).length;
+  const lowPerformers = data.filter(c => c.roi > 0 && c.roi < 0.8).length;
+
+  // Genre analysis
+  const genreData = {};
+  data.forEach(c => {
+    if (c.genre !== 'N/A') {
+      if (!genreData[c.genre]) genreData[c.genre] = { emv: 0, cost: 0, count: 0 };
+      genreData[c.genre].emv += c.emv;
+      genreData[c.genre].cost += c.creator_rate;
+      genreData[c.genre].count++;
+    }
+  });
+  const bestGenre = Object.entries(genreData).sort((a, b) => (b[1].emv / b[1].cost) - (a[1].emv / a[1].cost))[0];
+
+  // Country analysis
+  const countryData = {};
+  data.forEach(c => {
+    if (c.country !== 'N/A') {
+      if (!countryData[c.country]) countryData[c.country] = { emv: 0, cost: 0, count: 0 };
+      countryData[c.country].emv += c.emv;
+      countryData[c.country].cost += c.creator_rate;
+      countryData[c.country].count++;
+    }
+  });
+  const bestCountry = Object.entries(countryData).sort((a, b) => (b[1].emv / b[1].cost) - (a[1].emv / a[1].cost))[0];
+
+  const roiClass = overallROI >= 1 ? 'highlight-positive' : 'highlight-negative';
+  const roiVerdict = overallROI >= 1.5 ? 'significantly exceeded expectations' :
+                     overallROI >= 1 ? 'met return objectives' :
+                     overallROI >= 0.7 ? 'fell slightly below target' : 'underperformed expectations';
+
+  let summaryText = `
+    <p>This campaign engaged <strong>${totals.creators} creator${totals.creators > 1 ? 's' : ''}</strong>
+    with a total investment of <strong>$${totals.totalCost.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong>,
+    generating <strong>$${totals.totalEMV.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong> in estimated media value
+    across <strong>${totals.totalViews.toLocaleString('en-US', {maximumFractionDigits: 0})}</strong> total views.
+    The overall campaign ROI of <span class="${roiClass}">${overallROI.toFixed(2)}x</span> ${roiVerdict}.</p>
+
+    <p><strong>${topPerformer.creator_name}</strong> emerged as the top performer, delivering
+    <strong>$${topPerformer.emv.toLocaleString('en-US', {minimumFractionDigits: 2})}</strong> EMV
+    with an ROI of <span class="highlight-positive">${topPerformer.roi.toFixed(2)}x</span>.`;
+
+  if (highPerformers > 0) {
+    const highPct = Math.round((highPerformers / totals.creators) * 100);
+    summaryText += ` ${highPerformers} creator${highPerformers > 1 ? 's' : ''} (${highPct}%) delivered exceptional returns above 1.5x ROI.`;
+  }
+
+  if (lowPerformers > 0 && worstPerformer) {
+    summaryText += ` However, <strong>${worstPerformer.creator_name}</strong> underperformed with only
+    <span class="highlight-negative">${worstPerformer.roi.toFixed(2)}x</span> ROI, suggesting partnership terms should be reviewed.`;
+  }
+
+  summaryText += `</p>`;
+
+  if (bestGenre) {
+    const genreROI = bestGenre[1].cost > 0 ? (bestGenre[1].emv / bestGenre[1].cost) : 0;
+    const genrePct = Math.round((bestGenre[1].emv / totals.totalEMV) * 100);
+    summaryText += `<p>From a category perspective, <strong>${bestGenre[0]}</strong> content drove ${genrePct}% of total EMV
+    with a ${genreROI.toFixed(2)}x ROI, indicating strong audience resonance in this vertical.`;
+  }
+
+  if (bestCountry) {
+    const countryROI = bestCountry[1].cost > 0 ? (bestCountry[1].emv / bestCountry[1].cost) : 0;
+    const countryPct = Math.round((bestCountry[1].emv / totals.totalEMV) * 100);
+    summaryText += ` Geographically, <strong>${bestCountry[0]}</strong> creators contributed ${countryPct}% of EMV
+    at ${countryROI.toFixed(2)}x ROI.</p>`;
+  }
+
+  document.getElementById('summary-paragraph').innerHTML = summaryText;
 }
 
 function generateInsights(data, totals, isTwitchCampaign) {
@@ -573,14 +661,15 @@ function generateInsights(data, totals, isTwitchCampaign) {
     });
   }
 
-  // Underperformers warning
-  const underperformers = data.filter(c => c.roi > 0 && c.roi < 0.5);
+  // Underperformers warning - name the worst one
+  const underperformers = data.filter(c => c.roi > 0 && c.roi < 0.8);
   if (underperformers.length > 0) {
+    const worstPerformer = underperformers.reduce((min, c) => c.roi < min.roi ? c : min, underperformers[0]);
     insights.push({
       type: 'warning',
-      title: 'Underperforming Creators',
-      value: underperformers.length + ' creator(s)',
-      detail: 'ROI below 0.5x - consider reviewing partnership terms'
+      title: 'Lowest ROI Creator',
+      value: worstPerformer.creator_name,
+      detail: worstPerformer.roi.toFixed(2) + 'x ROI ($' + worstPerformer.emv.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' EMV from $' + worstPerformer.creator_rate.toLocaleString('en-US', {minimumFractionDigits: 2}) + ' investment)'
     });
   }
 
@@ -600,10 +689,10 @@ function buildReportTable(data, isTwitchCampaign) {
   const tbody = document.querySelector('#report-table tbody');
 
   if (isTwitchCampaign) {
-    // Twitch table - no engagement columns
+    // Twitch table - includes ACCV, no engagement columns
     thead.innerHTML = `<tr>
       <th>Creator</th><th>Country</th><th>Language</th><th>Genre</th>
-      <th>Hours Watched</th><th>Views</th><th>Creator Rate</th><th>EMV</th><th>ROI</th>
+      <th>ACCV</th><th>Hours Watched</th><th>Views</th><th>Creator Rate</th><th>EMV</th><th>ROI</th>
     </tr>`;
 
     tbody.innerHTML = data.map(c => `<tr>
@@ -611,8 +700,9 @@ function buildReportTable(data, isTwitchCampaign) {
       <td>${c.country}</td>
       <td>${c.language}</td>
       <td>${c.genre}</td>
+      <td>${c.accv.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
       <td>${c.hours_watched.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-      <td>${c.views.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+      <td>${c.views.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</td>
       <td>$${c.creator_rate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
       <td>$${c.emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
       <td style="color: ${c.roi >= 1 ? '#8FDDAD' : '#E79B81'}">${c.roi.toFixed(2)}x</td>
@@ -642,7 +732,7 @@ function buildReportTable(data, isTwitchCampaign) {
 
 let chartInstances = [];
 
-function drawReportCharts(data) {
+function drawReportCharts(data, totals) {
   chartInstances.forEach(c => c.destroy());
   chartInstances = [];
 
@@ -670,13 +760,17 @@ function drawReportCharts(data) {
     }
   ));
 
-  // EMV Distribution (doughnut)
+  // EMV Distribution (doughnut) with percentages
+  const totalEMV = data.reduce((sum, c) => sum + c.emv, 0);
   chartInstances.push(new Chart(
     document.getElementById('chart-emv'),
     {
       type: 'doughnut',
       data: {
-        labels,
+        labels: data.map(c => {
+          const pct = totalEMV > 0 ? Math.round((c.emv / totalEMV) * 100) : 0;
+          return `${c.creator_name} (${pct}%)`;
+        }),
         datasets: [{
           data: data.map(c => c.emv),
           backgroundColor: colors.slice(0, data.length),
@@ -684,7 +778,18 @@ function drawReportCharts(data) {
       },
       options: {
         responsive: true,
-        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } }
+        plugins: {
+          legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const value = context.raw;
+                const pct = totalEMV > 0 ? Math.round((value / totalEMV) * 100) : 0;
+                return `$${value.toLocaleString('en-US', {minimumFractionDigits: 2})} (${pct}% of total)`;
+              }
+            }
+          }
+        }
       }
     }
   ));
@@ -712,50 +817,92 @@ function drawReportCharts(data) {
     }
   ));
 
-  // Genre Performance
-  const genreData = {};
+  // Genre Performance with ROI analysis
+  const genreAnalysis = {};
   data.forEach(c => {
-    if (!genreData[c.genre]) genreData[c.genre] = 0;
-    genreData[c.genre] += c.emv;
+    if (c.genre !== 'N/A') {
+      if (!genreAnalysis[c.genre]) genreAnalysis[c.genre] = { emv: 0, cost: 0, count: 0 };
+      genreAnalysis[c.genre].emv += c.emv;
+      genreAnalysis[c.genre].cost += c.creator_rate;
+      genreAnalysis[c.genre].count++;
+    }
+  });
+  const genreLabels = Object.entries(genreAnalysis).map(([genre, d]) => {
+    const roi = d.cost > 0 ? (d.emv / d.cost).toFixed(2) : '0.00';
+    const pct = totalEMV > 0 ? Math.round((d.emv / totalEMV) * 100) : 0;
+    return `${genre} (${pct}% EMV, ${roi}x ROI)`;
   });
   chartInstances.push(new Chart(
     document.getElementById('chart-genre'),
     {
       type: 'pie',
       data: {
-        labels: Object.keys(genreData),
+        labels: genreLabels,
         datasets: [{
-          data: Object.values(genreData),
-          backgroundColor: colors.slice(0, Object.keys(genreData).length),
+          data: Object.values(genreAnalysis).map(d => d.emv),
+          backgroundColor: colors.slice(0, Object.keys(genreAnalysis).length),
         }]
       },
       options: {
         responsive: true,
-        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } }
+        plugins: {
+          legend: { position: 'right', labels: { boxWidth: 12, font: { size: 9 } } },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const genre = Object.keys(genreAnalysis)[context.dataIndex];
+                const d = genreAnalysis[genre];
+                const roi = d.cost > 0 ? (d.emv / d.cost).toFixed(2) : '0.00';
+                return [`EMV: $${d.emv.toLocaleString('en-US', {minimumFractionDigits: 2})}`, `Cost: $${d.cost.toLocaleString('en-US', {minimumFractionDigits: 2})}`, `ROI: ${roi}x`, `Creators: ${d.count}`];
+              }
+            }
+          }
+        }
       }
     }
   ));
 
-  // Country Performance
-  const countryData = {};
+  // Country Performance with ROI analysis
+  const countryAnalysis = {};
   data.forEach(c => {
-    if (!countryData[c.country]) countryData[c.country] = 0;
-    countryData[c.country] += c.emv;
+    if (c.country !== 'N/A') {
+      if (!countryAnalysis[c.country]) countryAnalysis[c.country] = { emv: 0, cost: 0, count: 0 };
+      countryAnalysis[c.country].emv += c.emv;
+      countryAnalysis[c.country].cost += c.creator_rate;
+      countryAnalysis[c.country].count++;
+    }
+  });
+  const countryLabels = Object.entries(countryAnalysis).map(([country, d]) => {
+    const roi = d.cost > 0 ? (d.emv / d.cost).toFixed(2) : '0.00';
+    const pct = totalEMV > 0 ? Math.round((d.emv / totalEMV) * 100) : 0;
+    return `${country} (${pct}% EMV, ${roi}x ROI)`;
   });
   chartInstances.push(new Chart(
     document.getElementById('chart-country'),
     {
       type: 'pie',
       data: {
-        labels: Object.keys(countryData),
+        labels: countryLabels,
         datasets: [{
-          data: Object.values(countryData),
-          backgroundColor: colors.slice(0, Object.keys(countryData).length),
+          data: Object.values(countryAnalysis).map(d => d.emv),
+          backgroundColor: colors.slice(0, Object.keys(countryAnalysis).length),
         }]
       },
       options: {
         responsive: true,
-        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } }
+        plugins: {
+          legend: { position: 'right', labels: { boxWidth: 12, font: { size: 9 } } },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const country = Object.keys(countryAnalysis)[context.dataIndex];
+                const d = countryAnalysis[country];
+                const roi = d.cost > 0 ? (d.emv / d.cost).toFixed(2) : '0.00';
+                return [`EMV: $${d.emv.toLocaleString('en-US', {minimumFractionDigits: 2})}`, `Cost: $${d.cost.toLocaleString('en-US', {minimumFractionDigits: 2})}`, `ROI: ${roi}x`, `Creators: ${d.count}`];
+              }
+            }
+          }
+        }
       }
     }
   ));
@@ -787,6 +934,165 @@ function drawReportCharts(data) {
       }
     }
   ));
+}
+
+// ============================================================
+// STRATEGIC RECOMMENDATIONS
+// ============================================================
+
+function generateRecommendations(data, totals, overallROI, isTwitchCampaign) {
+  const recommendations = [];
+
+  // Analyze genre performance
+  const genreData = {};
+  data.forEach(c => {
+    if (c.genre !== 'N/A') {
+      if (!genreData[c.genre]) genreData[c.genre] = { emv: 0, cost: 0, count: 0, creators: [] };
+      genreData[c.genre].emv += c.emv;
+      genreData[c.genre].cost += c.creator_rate;
+      genreData[c.genre].count++;
+      genreData[c.genre].creators.push(c);
+    }
+  });
+
+  const genrePerformance = Object.entries(genreData)
+    .map(([genre, d]) => ({ genre, roi: d.cost > 0 ? d.emv / d.cost : 0, emv: d.emv, cost: d.cost, count: d.count }))
+    .sort((a, b) => b.roi - a.roi);
+
+  // Analyze country performance
+  const countryData = {};
+  data.forEach(c => {
+    if (c.country !== 'N/A') {
+      if (!countryData[c.country]) countryData[c.country] = { emv: 0, cost: 0, count: 0 };
+      countryData[c.country].emv += c.emv;
+      countryData[c.country].cost += c.creator_rate;
+      countryData[c.country].count++;
+    }
+  });
+
+  const countryPerformance = Object.entries(countryData)
+    .map(([country, d]) => ({ country, roi: d.cost > 0 ? d.emv / d.cost : 0, emv: d.emv, cost: d.cost, count: d.count }))
+    .sort((a, b) => b.roi - a.roi);
+
+  // Analyze individual creator performance
+  const highPerformers = data.filter(c => c.roi >= 1.5).sort((a, b) => b.roi - a.roi);
+  const midPerformers = data.filter(c => c.roi >= 0.8 && c.roi < 1.5);
+  const lowPerformers = data.filter(c => c.roi > 0 && c.roi < 0.8).sort((a, b) => a.roi - b.roi);
+
+  // DOUBLE DOWN - High performers and best genres/countries
+  const doubleDown = [];
+
+  if (highPerformers.length > 0) {
+    const topCreators = highPerformers.slice(0, 3).map(c => c.creator_name).join(', ');
+    doubleDown.push(`<strong>Increase investment</strong> in top-performing creators: ${topCreators}. These partnerships delivered exceptional ROI above 1.5x and should be prioritized for future campaigns.`);
+  }
+
+  if (genrePerformance.length > 0 && genrePerformance[0].roi >= 1) {
+    const topGenre = genrePerformance[0];
+    doubleDown.push(`<strong>Expand ${topGenre.genre} content</strong> activations. This genre delivered ${topGenre.roi.toFixed(2)}x ROI with $${topGenre.emv.toLocaleString('en-US', {minimumFractionDigits: 2})} EMV from ${topGenre.count} creator${topGenre.count > 1 ? 's' : ''}.`);
+  }
+
+  if (countryPerformance.length > 0 && countryPerformance[0].roi >= 1) {
+    const topCountry = countryPerformance[0];
+    doubleDown.push(`<strong>Focus on ${topCountry.country} market</strong>. Creators from this region achieved ${topCountry.roi.toFixed(2)}x ROI, indicating strong audience engagement.`);
+  }
+
+  // OPTIMIZE - Mid performers and opportunities
+  const optimize = [];
+
+  if (midPerformers.length > 0) {
+    optimize.push(`<strong>Renegotiate terms</strong> with ${midPerformers.length} mid-tier performer${midPerformers.length > 1 ? 's' : ''} (0.8-1.5x ROI). Consider performance-based bonuses or adjusted rates to improve returns.`);
+  }
+
+  if (genrePerformance.length > 1) {
+    const underperformingGenres = genrePerformance.filter(g => g.roi < 1 && g.roi > 0);
+    if (underperformingGenres.length > 0) {
+      optimize.push(`<strong>Review ${underperformingGenres[0].genre} content strategy</strong>. This genre underperformed at ${underperformingGenres[0].roi.toFixed(2)}x ROI. Consider adjusting creative briefs or targeting different creators in this space.`);
+    }
+  }
+
+  if (!isTwitchCampaign) {
+    const lowEngagement = data.filter(c => c.engagement_rate > 0 && c.engagement_rate < 2);
+    if (lowEngagement.length > 0) {
+      optimize.push(`<strong>Improve content engagement</strong> for ${lowEngagement.length} creator${lowEngagement.length > 1 ? 's' : ''} with sub-2% engagement rates. Consider more authentic integrations or different content formats.`);
+    }
+  }
+
+  // AVOID - Low performers and poor ROI areas
+  const avoid = [];
+
+  if (lowPerformers.length > 0) {
+    const worstCreators = lowPerformers.slice(0, 2).map(c => `${c.creator_name} (${c.roi.toFixed(2)}x)`).join(', ');
+    avoid.push(`<strong>Reconsider partnerships</strong> with underperforming creators: ${worstCreators}. These partnerships did not deliver adequate returns on investment.`);
+  }
+
+  if (countryPerformance.length > 0) {
+    const worstCountry = countryPerformance[countryPerformance.length - 1];
+    if (worstCountry.roi < 0.8 && worstCountry.roi > 0) {
+      avoid.push(`<strong>Reduce ${worstCountry.country} exposure</strong>. This market delivered only ${worstCountry.roi.toFixed(2)}x ROI. Consider reallocating budget to higher-performing regions.`);
+    }
+  }
+
+  // FUTURE OPPORTUNITIES
+  const future = [];
+
+  if (overallROI >= 1) {
+    const budgetIncrease = Math.round((overallROI - 1) * 100);
+    future.push(`<strong>Scale campaign budget</strong>. With ${overallROI.toFixed(2)}x overall ROI, consider increasing investment by ${Math.min(budgetIncrease, 50)}% for the next activation.`);
+  }
+
+  if (highPerformers.length > 0) {
+    future.push(`<strong>Develop long-term partnerships</strong> with top ${Math.min(highPerformers.length, 3)} creators. Ambassador programs or multi-campaign deals could secure favorable rates and deeper audience connections.`);
+  }
+
+  if (genrePerformance.length > 0 && genrePerformance[0].count < 3) {
+    future.push(`<strong>Test more ${genrePerformance[0].genre} creators</strong>. Strong ROI with limited sample size suggests opportunity to expand in this vertical.`);
+  }
+
+  // Build HTML
+  let html = '';
+
+  if (doubleDown.length > 0) {
+    html += `
+      <div class="recommendation-category double-down">
+        <h4>Double Down</h4>
+        <ul>${doubleDown.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+    `;
+  }
+
+  if (optimize.length > 0) {
+    html += `
+      <div class="recommendation-category optimize">
+        <h4>Optimize</h4>
+        <ul>${optimize.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+    `;
+  }
+
+  if (avoid.length > 0) {
+    html += `
+      <div class="recommendation-category avoid">
+        <h4>Reconsider</h4>
+        <ul>${avoid.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+    `;
+  }
+
+  if (future.length > 0) {
+    html += `
+      <div class="recommendation-category future">
+        <h4>Future Opportunities</h4>
+        <ul>${future.map(r => `<li>${r}</li>`).join('')}</ul>
+      </div>
+    `;
+  }
+
+  if (html === '') {
+    html = '<p>Insufficient data to generate strategic recommendations. Ensure campaign data includes genre, country, and performance metrics.</p>';
+  }
+
+  document.getElementById('recommendations-content').innerHTML = html;
 }
 
 // ============================================================

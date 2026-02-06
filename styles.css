@@ -702,10 +702,108 @@ footer {
 
 .executive-summary h3,
 .charts-section h3,
-.insights-section h3 {
+.insights-section h3,
+.recommendations-section h3 {
   font-size: 1.1rem;
   font-weight: 400;
   margin-bottom: 1rem;
+  color: var(--afk-purple);
+}
+
+.summary-paragraph {
+  background: #111;
+  border: 1px solid #222;
+  border-left: 3px solid var(--afk-purple);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+  color: var(--afk-grey);
+  font-size: 0.95rem;
+}
+
+.summary-paragraph strong {
+  color: var(--afk-white);
+}
+
+.summary-paragraph .highlight-positive {
+  color: var(--afk-green);
+  font-weight: 400;
+}
+
+.summary-paragraph .highlight-negative {
+  color: var(--afk-orange);
+  font-weight: 400;
+}
+
+/* === Recommendations Section === */
+.recommendations-section {
+  margin-top: 2rem;
+}
+
+.recommendations-content {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.recommendation-category {
+  margin-bottom: 1.5rem;
+}
+
+.recommendation-category:last-child {
+  margin-bottom: 0;
+}
+
+.recommendation-category h4 {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--afk-white);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recommendation-category h4 .icon {
+  font-size: 1.1rem;
+}
+
+.recommendation-category.double-down h4 {
+  color: var(--afk-green);
+}
+
+.recommendation-category.optimize h4 {
+  color: var(--afk-blue);
+}
+
+.recommendation-category.avoid h4 {
+  color: var(--afk-orange);
+}
+
+.recommendation-category.future h4 {
+  color: var(--afk-purple);
+}
+
+.recommendation-category ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.recommendation-category li {
+  padding: 0.5rem 0 0.5rem 1.5rem;
+  position: relative;
+  color: var(--afk-grey);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.recommendation-category li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
   color: var(--afk-purple);
 }
 
