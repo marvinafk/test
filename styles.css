@@ -573,6 +573,15 @@ footer {
 .template-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.platform-logo {
+  height: 40px;
+  width: auto;
 }
 
 .template-card h3 {
@@ -594,17 +603,37 @@ footer {
   line-height: 1.4;
 }
 
-.csv-format-help ol {
+.csv-format-help ol,
+.csv-format-help ul {
   padding-left: 1.25rem;
   color: var(--afk-grey);
   font-size: 0.9rem;
 }
 
-.csv-format-help ol li {
+.csv-format-help ol li,
+.csv-format-help ul li {
   margin-bottom: 0.5rem;
 }
 
-.csv-format-help ol strong {
+.csv-format-help ol strong,
+.csv-format-help ul strong {
+  color: var(--afk-purple);
+}
+
+.format-rules {
+  list-style: none;
+  padding-left: 0 !important;
+}
+
+.format-rules li {
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.format-rules li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
   color: var(--afk-purple);
 }
 

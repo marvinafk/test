@@ -64,10 +64,6 @@
               <label for="twitch-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
               <input type="text" id="twitch-creator-rate" placeholder="e.g. 5,000" min="0" class="formatted-number">
             </div>
-            <div class="form-group">
-              <label for="twitch-engagement">Engagement <span class="optional-label">Optional</span></label>
-              <input type="text" id="twitch-engagement" placeholder="e.g. 25,000" min="0" class="formatted-number">
-            </div>
           </div>
 
           <!-- Results -->
@@ -193,15 +189,19 @@
 
         <div class="template-cards">
           <div class="template-card">
-            <div class="template-icon">&#127918;</div>
+            <div class="template-icon">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Twitch_Glitch_Logo_Purple.svg" alt="Twitch" class="platform-logo">
+            </div>
             <h3>Twitch</h3>
             <p>For streaming campaigns</p>
-            <p class="template-fields">Fields: Creator Name, Country, Language, Genre, ACCV, Hours Streamed, Creator Rate, Engagement</p>
+            <p class="template-fields">Fields: Creator Name, Country, Language, Genre, ACCV, Hours Streamed, Creator Rate</p>
             <button class="btn btn-primary" id="download-twitch-template">Download Template</button>
           </div>
 
           <div class="template-card">
-            <div class="template-icon">&#9658;</div>
+            <div class="template-icon">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube" class="platform-logo">
+            </div>
             <h3>YouTube (Dedicated)</h3>
             <p>For dedicated video campaigns</p>
             <p class="template-fields">Fields: Creator Name, Country, Language, Genre, Total Views, Creator Rate, Engagement</p>
@@ -209,12 +209,24 @@
           </div>
 
           <div class="template-card">
-            <div class="template-icon">&#127926;</div>
+            <div class="template-icon">
+              <img src="https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg" alt="TikTok" class="platform-logo">
+            </div>
             <h3>TikTok</h3>
             <p>For short-form video campaigns</p>
             <p class="template-fields">Fields: Creator Name, Country, Language, Genre, Total Views, Creator Rate, Engagement</p>
             <button class="btn btn-primary" id="download-tiktok-template">Download Template</button>
           </div>
+        </div>
+
+        <div class="csv-format-help">
+          <h3>Formatting Rules</h3>
+          <ul class="format-rules">
+            <li>Use <strong>ISO language codes</strong> for languages: EN, DE, FR, ES, PT, JP, KR (not "English", "German", etc.)</li>
+            <li>Use <strong>ISO country codes</strong> for countries: US, UK, DE, FR, CA, AU (not "USA", "United States", etc.)</li>
+            <li>Enter creator handles <strong>without @</strong>: mrbeast, ninja, pokimane (not @mrbeast)</li>
+            <li>Numbers should be entered <strong>without commas</strong>: 5000000 (not 5,000,000)</li>
+          </ul>
         </div>
 
         <div class="csv-format-help">

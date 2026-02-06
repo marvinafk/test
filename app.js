@@ -85,7 +85,6 @@ const twitchEMV = document.getElementById('twitch-emv');
 const twitchCreatorRate = document.getElementById('twitch-creator-rate');
 const twitchROI = document.getElementById('twitch-roi');
 const twitchROIGroup = document.getElementById('twitch-roi-group');
-const twitchEngagement = document.getElementById('twitch-engagement');
 
 function calculateTwitchMetrics() {
   const accv = parseFormattedNumber(twitchACCV.value);
@@ -122,7 +121,6 @@ function calculateTwitchMetrics() {
 twitchACCV.addEventListener('input', calculateTwitchMetrics);
 twitchHoursStreamed.addEventListener('input', calculateTwitchMetrics);
 twitchCreatorRate.addEventListener('input', calculateTwitchMetrics);
-twitchEngagement.addEventListener('input', calculateTwitchMetrics);
 
 // --- YouTube Auto-Calculations ---
 const youtubeViews = document.getElementById('youtube-views');
@@ -237,23 +235,17 @@ tiktokEngagement.addEventListener('input', calculateTikTokMetrics);
 // ============================================================
 
 document.getElementById('download-twitch-template').addEventListener('click', () => {
-  const template = `creator_name,country,language,genre,accv,hours_streamed,creator_rate,engagement
-@ninja,USA,English,Gaming,15000,120,50000,250000
-@shroud,Canada,English,FPS,12000,100,45000,180000`;
+  const template = `creator_name,country,language,genre,accv,hours_streamed,creator_rate`;
   downloadFile(template, 'twitch_campaign_template.csv', 'text/csv');
 });
 
 document.getElementById('download-youtube-template').addEventListener('click', () => {
-  const template = `creator_name,country,language,genre,total_views,creator_rate,engagement
-PewDiePie,Sweden,English,Entertainment,5000000,100000,350000
-MrBeast,USA,English,Entertainment,25000000,500000,1500000`;
+  const template = `creator_name,country,language,genre,total_views,creator_rate,engagement`;
   downloadFile(template, 'youtube_campaign_template.csv', 'text/csv');
 });
 
 document.getElementById('download-tiktok-template').addEventListener('click', () => {
-  const template = `creator_name,country,language,genre,total_views,creator_rate,engagement
-@charlidamelio,USA,English,Dance,10000000,75000,800000
-@khaby.lame,Italy,Italian,Comedy,50000000,150000,3000000`;
+  const template = `creator_name,country,language,genre,total_views,creator_rate,engagement`;
   downloadFile(template, 'tiktok_campaign_template.csv', 'text/csv');
 });
 
