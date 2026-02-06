@@ -320,6 +320,47 @@
         <!-- Detailed Table -->
         <div class="table-container">
           <h3>Creator Performance Breakdown</h3>
+
+          <!-- Filter Controls -->
+          <div class="table-filters" id="table-filters">
+            <div class="filter-row">
+              <div class="filter-group">
+                <label for="filter-metric">Filter by</label>
+                <select id="filter-metric">
+                  <option value="">-- Select Metric --</option>
+                  <option value="accv">ACCV</option>
+                  <option value="hours_watched">Hours Watched</option>
+                  <option value="views">Views</option>
+                  <option value="creator_rate">Creator Rate</option>
+                  <option value="emv">EMV</option>
+                  <option value="roi">ROI</option>
+                  <option value="engagement">Engagement</option>
+                  <option value="engagement_rate">Engagement Rate</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="filter-operator">Condition</label>
+                <select id="filter-operator">
+                  <option value="gte">Greater than or equal</option>
+                  <option value="lte">Less than or equal</option>
+                  <option value="gt">Greater than</option>
+                  <option value="lt">Less than</option>
+                  <option value="eq">Equal to</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="filter-value">Value</label>
+                <input type="text" id="filter-value" placeholder="e.g. 1000" class="formatted-number">
+              </div>
+              <div class="filter-actions">
+                <button class="btn btn-primary btn-small" id="apply-filter">Apply Filter</button>
+                <button class="btn btn-secondary btn-small" id="clear-filter">Clear</button>
+              </div>
+            </div>
+            <div class="active-filters" id="active-filters"></div>
+            <div class="filter-summary" id="filter-summary"></div>
+          </div>
+
           <div class="table-scroll">
             <table id="report-table">
               <thead></thead>

@@ -1,0 +1,216 @@
+{
+  "example_ingest_response": {
+    "success": true,
+    "message": "Processed 10 rows. Session ID: session_20260206_143022_1234",
+    "health_report": {
+      "health_score": 92.5,
+      "score_explanation": "Excellent (93/100): Data quality is excellent. Ready for analysis. Deductions: -5 for 1 warning(s); -2 for 1 minor issue(s).",
+      "total_rows": 10,
+      "valid_rows": 10,
+      "invalid_rows": 0,
+      "detected_platform": "twitch",
+      "issues": [
+        {
+          "severity": "warning",
+          "row_index": 6,
+          "column": "creator_rate",
+          "issue_type": "potential_outlier",
+          "message": "Row 7: creator_rate value (120,000) is a significant outlier - verify accuracy",
+          "value": 120000
+        }
+      ],
+      "critical_count": 0,
+      "warning_count": 1,
+      "info_count": 1,
+      "column_mapping": {
+        "creator_name": "creator_name",
+        "country": "country",
+        "accv": "accv",
+        "hours_streamed": "hours_streamed",
+        "creator_rate": "creator_rate"
+      }
+    },
+    "cleaned_data": [
+      {
+        "creator_name": "ninja",
+        "country": "US",
+        "language": "EN",
+        "genre": "FPS",
+        "accv": 45000,
+        "hours_streamed": 24,
+        "creator_rate": 85000
+      }
+    ],
+    "row_count": 10
+  },
+
+  "example_metrics_response": {
+    "success": true,
+    "campaign_totals": {
+      "total_creators": 10,
+      "total_spend": 550000.00,
+      "total_emv": 892800.00,
+      "total_views": 8928000,
+      "overall_roi": 1.62,
+      "platform": "twitch"
+    },
+    "creator_metrics": [
+      {
+        "creator_name": "ninja",
+        "platform": "twitch",
+        "views": 12960000,
+        "hours_watched": 1080000,
+        "emv": 1296000.00,
+        "creator_rate": 85000.00,
+        "roi": 15.25,
+        "cpv": 0.0066,
+        "cpm": 6.56,
+        "cpwh": 0.079,
+        "ctr": null,
+        "conversion_rate": null,
+        "engagement_rate": null,
+        "accv": 45000,
+        "hours_streamed": 24,
+        "country": "US",
+        "language": "EN",
+        "genre": "FPS"
+      }
+    ],
+    "generated_at": "2026-02-06T14:30:22.123456"
+  },
+
+  "example_benchmark_response": {
+    "success": true,
+    "benchmark_result": {
+      "campaign_summary": {
+        "total_spend": 550000.00,
+        "total_emv": 892800.00,
+        "overall_roi": 1.62
+      },
+      "creator_classifications": [
+        {
+          "creator_name": "ninja",
+          "classification": "overperforming",
+          "vs_30d_baseline": 7.1,
+          "vs_90d_baseline": 12.5,
+          "vs_cohort_median": 45.2,
+          "roi_percentile": 90.0,
+          "emv_percentile": 95.0,
+          "rationale": "ninja exceeded expectations with 15.25x ROI. 7.1% above 30-day baseline. 12.5% above 90-day baseline. 45.2% above cohort median."
+        },
+        {
+          "creator_name": "mizkif",
+          "classification": "underperforming",
+          "vs_30d_baseline": -7.4,
+          "vs_90d_baseline": -3.8,
+          "vs_cohort_median": -22.1,
+          "roi_percentile": 25.0,
+          "emv_percentile": 30.0,
+          "rationale": "mizkif fell below expectations with 0.82x ROI. 7.4% below 30-day baseline. 3.8% below 90-day baseline. 22.1% below cohort median."
+        }
+      ],
+      "cohort_median_roi": 1.45,
+      "cohort_median_cpm": 8.50,
+      "cohort_median_cpv": 0.0085,
+      "overperforming_count": 4,
+      "expected_count": 4,
+      "underperforming_count": 2,
+      "insights_json": {
+        "performance_distribution": {
+          "overperforming": 4,
+          "expected": 4,
+          "underperforming": 2,
+          "total": 10
+        },
+        "top_performers": [
+          {"name": "ninja", "roi": 15.25, "emv": 1296000, "genre": "FPS"},
+          {"name": "xqc", "roi": 8.92, "emv": 3570000, "genre": "Variety"}
+        ],
+        "efficiency_drivers": {
+          "highest_roi_genre": {"cohort": "twitch_FPS", "value": 12.35},
+          "lowest_cpm_genre": {"cohort": "twitch_Variety", "value": 5.20}
+        }
+      },
+      "insights_summary": "Campaign Performance Summary: 10 creators analyzed.\n\n**Performance Distribution:**\n- 4 (40%) overperforming\n- 4 (40%) performing as expected\n- 2 (20%) underperforming\n\n**Top Performers:**\n- ninja: 15.25x ROI, $1,296,000.00 EMV\n- xqc: 8.92x ROI, $3,570,000.00 EMV\n\n**Overall Campaign ROI:** 1.62x\n**Total Spend:** $550,000.00\n**Total EMV Generated:** $892,800.00"
+    },
+    "generated_at": "2026-02-06T14:30:22.123456"
+  },
+
+  "example_anomaly_response": {
+    "success": true,
+    "driver_analysis": {
+      "top_performer_concentration": "Top 20% of creators (2) generated 68% of total EMV",
+      "top_n_creators": ["xqc", "ninja", "shroud", "pokimane", "hasanabi"],
+      "top_n_emv_share": 68.5,
+      "best_genre": "FPS",
+      "best_genre_roi": 12.35,
+      "best_country": "US",
+      "best_country_roi": 8.45,
+      "anomalies": [
+        {
+          "creator_name": "xqc",
+          "metric": "views",
+          "anomaly_type": "spike",
+          "severity": "high",
+          "severity_score": 0.85,
+          "observed_value": 35700000,
+          "expected_value": 8928000,
+          "deviation_pct": 300.0,
+          "likely_cause": "Viral content or external traffic boost (extreme deviation of 300%)",
+          "recommendation": "Investigate xqc's success factors for replication in future campaigns"
+        },
+        {
+          "creator_name": "CaseyNeistat",
+          "metric": "roi",
+          "anomaly_type": "dip",
+          "severity": "medium",
+          "severity_score": 0.55,
+          "observed_value": 0.76,
+          "expected_value": 1.62,
+          "deviation_pct": -53.1,
+          "likely_cause": "Creator rate above market value",
+          "recommendation": "Review CaseyNeistat's campaign execution and consider rate renegotiation"
+        }
+      ],
+      "insight_summary": "This campaign engaged 10 creators, generating $892,800.00 in estimated media value from a $550,000.00 investment (1.62x ROI). Top 20% of creators (2) generated 68% of total EMV.\n\nKey performance drivers: **FPS** content delivered the highest ROI at 12.35x; **US** creators achieved 8.45x ROI.\n\nNotable outperformer: **xqc** exceeded expectations by 300% on views. Viral content or external traffic boost.\n\n**Recommendation:** Scale this campaign. Strong ROI indicates product-audience fit. Consider increasing budget allocation to top performers and expanding in high-ROI segments."
+    },
+    "generated_at": "2026-02-06T14:30:22.123456"
+  },
+
+  "example_full_analysis_response": {
+    "success": true,
+    "campaign_name": "Q1_2026_Twitch_Campaign.csv",
+    "platform": "twitch",
+    "generated_at": "2026-02-06T14:30:22.123456",
+
+    "data_health": {
+      "score": 92.5,
+      "explanation": "Excellent (93/100): Data quality is excellent. Ready for analysis.",
+      "issues_count": 2,
+      "critical_issues": 0
+    },
+
+    "campaign_totals": {
+      "total_creators": 10,
+      "total_spend": 550000.00,
+      "total_emv": 892800.00,
+      "total_views": 8928000,
+      "overall_roi": 1.62
+    },
+
+    "performance_distribution": {
+      "overperforming": 4,
+      "expected": 4,
+      "underperforming": 2
+    },
+
+    "concentration_analysis": "Top 20% of creators (2) generated 68% of total EMV",
+    "top_performers": ["xqc", "ninja", "shroud"],
+    "best_genre": "FPS",
+    "best_genre_roi": 12.35,
+    "best_country": "US",
+    "best_country_roi": 8.45,
+
+    "executive_insight": "This campaign engaged 10 creators, generating $892,800.00 in estimated media value from a $550,000.00 investment (1.62x ROI). Top 20% of creators (2) generated 68% of total EMV.\n\nKey performance drivers: **FPS** content delivered the highest ROI at 12.35x; **US** creators achieved 8.45x ROI.\n\n**Recommendation:** Scale this campaign. Strong ROI indicates product-audience fit. Consider increasing budget allocation to top performers and expanding in high-ROI segments."
+  }
+}

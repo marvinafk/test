@@ -443,6 +443,108 @@ tbody tr:hover {
   background: #1a1a1a;
 }
 
+/* === Table Filters === */
+.table-filters {
+  background: #0a0a0a;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-group label {
+  font-size: 0.75rem;
+  color: var(--afk-grey);
+}
+
+.filter-group select,
+.filter-group input {
+  background: #111;
+  border: 1px solid #333;
+  color: var(--afk-white);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  min-width: 150px;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  border-color: var(--afk-purple);
+  outline: none;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+}
+
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--afk-purple);
+  color: var(--afk-white);
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+}
+
+.filter-tag .remove-filter {
+  background: none;
+  border: none;
+  color: var(--afk-white);
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.filter-tag .remove-filter:hover {
+  opacity: 1;
+}
+
+.filter-summary {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--afk-grey);
+}
+
+.filter-summary strong {
+  color: var(--afk-green);
+}
+
+tbody tr.filtered-out {
+  display: none;
+}
+
 /* === Footer === */
 footer {
   text-align: center;

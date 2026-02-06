@@ -1128,3 +1128,183 @@ function downloadFile(content, filename, mimeType) {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+// ============================================================
+// TABLE FILTERING
+// ============================================================
+
+let activeFilters = [];
+
+const filterMetric = document.getElementById('filter-metric');
+const filterOperator = document.getElementById('filter-operator');
+const filterValue = document.getElementById('filter-value');
+const applyFilterBtn = document.getElementById('apply-filter');
+const clearFilterBtn = document.getElementById('clear-filter');
+const activeFiltersContainer = document.getElementById('active-filters');
+const filterSummary = document.getElementById('filter-summary');
+
+// Update available filter options based on platform
+function updateFilterOptions() {
+  const isTwitch = window._isTwitchCampaign;
+  const metricSelect = document.getElementById('filter-metric');
+
+  // Clear current options
+  metricSelect.innerHTML = '<option value="">-- Select Metric --</option>';
+
+  if (isTwitch) {
+    metricSelect.innerHTML += `
+      <option value="accv">ACCV</option>
+      <option value="hours_watched">Hours Watched</option>
+      <option value="views">Views</option>
+      <option value="creator_rate">Creator Rate ($)</option>
+      <option value="emv">EMV ($)</option>
+      <option value="roi">ROI (x)</option>
+    `;
+  } else {
+    metricSelect.innerHTML += `
+      <option value="views">Views</option>
+      <option value="creator_rate">Creator Rate ($)</option>
+      <option value="emv">EMV ($)</option>
+      <option value="roi">ROI (x)</option>
+      <option value="engagement">Engagement</option>
+      <option value="engagement_rate">Engagement Rate (%)</option>
+    `;
+  }
+}
+
+// Format metric label for display
+function formatMetricLabel(metric) {
+  const labels = {
+    accv: 'ACCV',
+    hours_watched: 'Hours Watched',
+    views: 'Views',
+    creator_rate: 'Creator Rate',
+    emv: 'EMV',
+    roi: 'ROI',
+    engagement: 'Engagement',
+    engagement_rate: 'Engagement Rate'
+  };
+  return labels[metric] || metric;
+}
+
+// Format operator for display
+function formatOperator(operator) {
+  const operators = {
+    gte: '≥',
+    lte: '≤',
+    gt: '>',
+    lt: '<',
+    eq: '='
+  };
+  return operators[operator] || operator;
+}
+
+// Apply filter logic
+function applyFilter(data, filter) {
+  const { metric, operator, value } = filter;
+  const numValue = parseFloat(value);
+
+  return data.filter(creator => {
+    const creatorValue = creator[metric] || 0;
+
+    switch (operator) {
+      case 'gte': return creatorValue >= numValue;
+      case 'lte': return creatorValue <= numValue;
+      case 'gt': return creatorValue > numValue;
+      case 'lt': return creatorValue < numValue;
+      case 'eq': return creatorValue === numValue;
+      default: return true;
+    }
+  });
+}
+
+// Apply all active filters
+function applyAllFilters() {
+  if (!window._reportData) return;
+
+  let filteredData = [...window._reportData];
+
+  activeFilters.forEach(filter => {
+    filteredData = applyFilter(filteredData, filter);
+  });
+
+  // Update table visibility
+  const tbody = document.querySelector('#report-table tbody');
+  const rows = tbody.querySelectorAll('tr');
+
+  rows.forEach((row, index) => {
+    const creator = window._reportData[index];
+    const isVisible = filteredData.some(c => c.creator_name === creator.creator_name);
+    row.classList.toggle('filtered-out', !isVisible);
+  });
+
+  // Update summary
+  updateFilterSummary(filteredData.length, window._reportData.length);
+}
+
+// Render active filter tags
+function renderActiveFilters() {
+  activeFiltersContainer.innerHTML = activeFilters.map((filter, index) => `
+    <span class="filter-tag">
+      ${formatMetricLabel(filter.metric)} ${formatOperator(filter.operator)} ${filter.value}
+      <button class="remove-filter" data-index="${index}">&times;</button>
+    </span>
+  `).join('');
+
+  // Add remove listeners
+  activeFiltersContainer.querySelectorAll('.remove-filter').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const index = parseInt(e.target.dataset.index);
+      activeFilters.splice(index, 1);
+      renderActiveFilters();
+      applyAllFilters();
+    });
+  });
+}
+
+// Update filter summary text
+function updateFilterSummary(shown, total) {
+  if (activeFilters.length === 0) {
+    filterSummary.innerHTML = '';
+  } else {
+    filterSummary.innerHTML = `Showing <strong>${shown}</strong> of <strong>${total}</strong> creators`;
+  }
+}
+
+// Event listeners
+applyFilterBtn.addEventListener('click', () => {
+  const metric = filterMetric.value;
+  const operator = filterOperator.value;
+  const value = parseFormattedNumber(filterValue.value);
+
+  if (!metric || !value) {
+    alert('Please select a metric and enter a value');
+    return;
+  }
+
+  activeFilters.push({ metric, operator, value });
+  renderActiveFilters();
+  applyAllFilters();
+
+  // Clear inputs
+  filterMetric.value = '';
+  filterValue.value = '';
+});
+
+clearFilterBtn.addEventListener('click', () => {
+  activeFilters = [];
+  renderActiveFilters();
+  applyAllFilters();
+  filterMetric.value = '';
+  filterValue.value = '';
+});
+
+// Hook into report generation to update filter options
+const originalGenerateReport = generateCampaignReport;
+generateCampaignReport = function(data, campaignName, platform) {
+  originalGenerateReport(data, campaignName, platform);
+  updateFilterOptions();
+  activeFilters = [];
+  renderActiveFilters();
+  filterSummary.innerHTML = '';
+};
