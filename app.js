@@ -138,6 +138,76 @@ twitchACCV.addEventListener('input', calculateTwitchMetrics);
 twitchHoursStreamed.addEventListener('input', calculateTwitchMetrics);
 twitchCreatorRate.addEventListener('input', calculateTwitchMetrics);
 
+// --- YouTube Auto-Calculations ---
+const youtubeViews = document.getElementById('youtube-views');
+const youtubeCreatorRate = document.getElementById('youtube-creator-rate');
+const youtubeEMV = document.getElementById('youtube-emv');
+const youtubeROI = document.getElementById('youtube-roi');
+const youtubeROIGroup = document.getElementById('youtube-roi-group');
+
+function calculateYouTubeMetrics() {
+  const views = parseFloat(youtubeViews.value) || 0;
+  const creatorRate = parseFloat(youtubeCreatorRate.value) || 0;
+
+  // Estimated Media Value = Views * $0.05 USD (industry standard CPV)
+  const emv = views * 0.05;
+
+  // Display calculated values
+  youtubeEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+
+  // Show/hide ROI field and calculate if Creator Rate is provided
+  if (creatorRate > 0) {
+    youtubeROIGroup.style.display = 'block';
+    // ROI = (EMV / Creator Rate) * 100
+    const roi = (emv / creatorRate) * 100;
+    const roiClass = roi >= 100 ? 'positive' : 'negative';
+    youtubeROI.value = roi.toFixed(2) + '%';
+    youtubeROI.className = 'calculated-field result-field ' + roiClass;
+  } else {
+    youtubeROIGroup.style.display = 'none';
+    youtubeROI.value = '';
+  }
+}
+
+// Calculate whenever inputs change
+youtubeViews.addEventListener('input', calculateYouTubeMetrics);
+youtubeCreatorRate.addEventListener('input', calculateYouTubeMetrics);
+
+// --- TikTok Auto-Calculations ---
+const tiktokViews = document.getElementById('tiktok-views');
+const tiktokCreatorRate = document.getElementById('tiktok-creator-rate');
+const tiktokEMV = document.getElementById('tiktok-emv');
+const tiktokROI = document.getElementById('tiktok-roi');
+const tiktokROIGroup = document.getElementById('tiktok-roi-group');
+
+function calculateTikTokMetrics() {
+  const views = parseFloat(tiktokViews.value) || 0;
+  const creatorRate = parseFloat(tiktokCreatorRate.value) || 0;
+
+  // Estimated Media Value = Views * $0.02 USD (TikTok CPV rate)
+  const emv = views * 0.02;
+
+  // Display calculated values
+  tiktokEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+
+  // Show/hide ROI field and calculate if Creator Rate is provided
+  if (creatorRate > 0) {
+    tiktokROIGroup.style.display = 'block';
+    // ROI = (EMV / Creator Rate) * 100
+    const roi = (emv / creatorRate) * 100;
+    const roiClass = roi >= 100 ? 'positive' : 'negative';
+    tiktokROI.value = roi.toFixed(2) + '%';
+    tiktokROI.className = 'calculated-field result-field ' + roiClass;
+  } else {
+    tiktokROIGroup.style.display = 'none';
+    tiktokROI.value = '';
+  }
+}
+
+// Calculate whenever inputs change
+tiktokViews.addEventListener('input', calculateTikTokMetrics);
+tiktokCreatorRate.addEventListener('input', calculateTikTokMetrics);
+
 // ============================================================
 // CSV UPLOAD MODE
 // ============================================================

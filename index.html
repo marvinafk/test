@@ -85,16 +85,68 @@
           </div>
         </div>
 
-        <!-- YouTube Fields (placeholder for later) -->
+        <!-- YouTube Fields -->
         <div id="youtube-fields" class="platform-fields hidden">
           <h3 class="platform-section-title">YouTube Metrics</h3>
-          <p class="coming-soon">YouTube metrics coming soon...</p>
+
+          <!-- Input Fields -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="youtube-views">Total Views</label>
+              <input type="number" id="youtube-views" placeholder="e.g. 500000" min="0">
+            </div>
+            <div class="form-group">
+              <label for="youtube-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
+              <input type="number" id="youtube-creator-rate" placeholder="e.g. 10000" min="0" step="0.01">
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div class="results-section">
+            <h4 class="results-title">Results</h4>
+            <div class="results-grid">
+              <div class="result-box">
+                <label for="youtube-emv">Estimated Media Value (USD)</label>
+                <input type="text" id="youtube-emv" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box" id="youtube-roi-group" style="display: none;">
+                <label for="youtube-roi">ROI</label>
+                <input type="text" id="youtube-roi" readonly class="calculated-field result-field">
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- TikTok Fields (placeholder for later) -->
+        <!-- TikTok Fields -->
         <div id="tiktok-fields" class="platform-fields hidden">
           <h3 class="platform-section-title">TikTok Metrics</h3>
-          <p class="coming-soon">TikTok metrics coming soon...</p>
+
+          <!-- Input Fields -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="tiktok-views">Total Views</label>
+              <input type="number" id="tiktok-views" placeholder="e.g. 1000000" min="0">
+            </div>
+            <div class="form-group">
+              <label for="tiktok-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
+              <input type="number" id="tiktok-creator-rate" placeholder="e.g. 3000" min="0" step="0.01">
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div class="results-section">
+            <h4 class="results-title">Results</h4>
+            <div class="results-grid">
+              <div class="result-box">
+                <label for="tiktok-emv">Estimated Media Value (USD)</label>
+                <input type="text" id="tiktok-emv" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box" id="tiktok-roi-group" style="display: none;">
+                <label for="tiktok-roi">ROI</label>
+                <input type="text" id="tiktok-roi" readonly class="calculated-field result-field">
+              </div>
+            </div>
+          </div>
         </div>
 
       </form>
