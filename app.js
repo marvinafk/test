@@ -1,5 +1,5 @@
 // ============================================================
-// Campaign ROI Calculator & Automated Report Generator
+// AFK Influencer ROI Calculator
 // ============================================================
 
 // --- Tab Switching ---
@@ -12,66 +12,49 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// --- Core Calculation Engine ---
-// This is the heart of the app. It takes raw campaign numbers
-// and returns all the marketing metrics you'd put in a report.
-function calculateMetrics(data) {
-  const spend = parseFloat(data.spend) || 0;
-  const impressions = parseInt(data.impressions) || 0;
-  const clicks = parseInt(data.clicks) || 0;
-  const conversions = parseInt(data.conversions) || 0;
-  const revenue = parseFloat(data.revenue) || 0;
-  const engagements = parseInt(data.engagements) || 0;
+// ============================================================
+// NUMBER FORMATTING HELPERS
+// ============================================================
 
-  return {
-    campaign_name: data.campaign_name || '',
-    platform: data.platform || '',
-    spend,
-    impressions,
-    clicks,
-    conversions,
-    revenue,
-    engagements,
-    // CPM = Cost Per Mille (cost per 1,000 impressions)
-    cpm: impressions > 0 ? (spend / impressions) * 1000 : 0,
-    // CPC = Cost Per Click
-    cpc: clicks > 0 ? spend / clicks : 0,
-    // CPA = Cost Per Acquisition (cost per conversion)
-    cpa: conversions > 0 ? spend / conversions : 0,
-    // CTR = Click-Through Rate (what % of people who saw it clicked)
-    ctr: impressions > 0 ? (clicks / impressions) * 100 : 0,
-    // Conversion Rate (what % of clickers converted)
-    conversion_rate: clicks > 0 ? (conversions / clicks) * 100 : 0,
-    // Engagement Rate (what % of impressions led to engagement)
-    engagement_rate: impressions > 0 ? (engagements / impressions) * 100 : 0,
-    // ROI % = Return on Investment
-    roi: spend > 0 ? ((revenue - spend) / spend) * 100 : 0,
-    // ROAS = Return on Ad Spend (revenue per dollar spent)
-    roas: spend > 0 ? revenue / spend : 0,
-    // Net profit
-    profit: revenue - spend,
-  };
+// Format number with thousand separators
+function formatNumberWithCommas(value) {
+  if (!value) return '';
+  const num = parseFloat(value.toString().replace(/,/g, ''));
+  if (isNaN(num)) return '';
+  return num.toLocaleString('en-US');
 }
 
-// --- Format helpers ---
-function formatCurrency(val) {
-  return '$' + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// Parse number from formatted string (remove commas)
+function parseFormattedNumber(value) {
+  if (!value) return 0;
+  return parseFloat(value.toString().replace(/,/g, '')) || 0;
 }
 
-function formatNumber(val) {
-  return val.toLocaleString('en-US');
-}
+// Add formatting to all number input fields
+document.querySelectorAll('.formatted-number').forEach(input => {
+  input.addEventListener('blur', function() {
+    const rawValue = this.value.replace(/,/g, '');
+    if (rawValue && !isNaN(parseFloat(rawValue))) {
+      this.value = formatNumberWithCommas(rawValue);
+    }
+  });
 
-function formatPercent(val) {
-  return val.toFixed(2) + '%';
-}
+  input.addEventListener('focus', function() {
+    // Keep formatted for easier reading
+  });
+
+  input.addEventListener('input', function() {
+    // Trigger calculation on input
+    const event = new Event('calculate');
+    this.dispatchEvent(event);
+  });
+});
 
 // ============================================================
 // INFLUENCER ROI CALCULATOR
 // ============================================================
 
 // --- Platform Switching ---
-// Show/hide fields based on selected platform
 const platformSelect = document.getElementById('platform');
 const twitchFields = document.getElementById('twitch-fields');
 const youtubeFields = document.getElementById('youtube-fields');
@@ -80,12 +63,10 @@ const tiktokFields = document.getElementById('tiktok-fields');
 platformSelect.addEventListener('change', () => {
   const platform = platformSelect.value;
 
-  // Hide all platform fields first
   twitchFields.classList.add('hidden');
   youtubeFields.classList.add('hidden');
   tiktokFields.classList.add('hidden');
 
-  // Show the selected platform's fields
   if (platform === 'Twitch') {
     twitchFields.classList.remove('hidden');
   } else if (platform === 'YouTube') {
@@ -99,34 +80,35 @@ platformSelect.addEventListener('change', () => {
 const twitchACCV = document.getElementById('twitch-accv');
 const twitchHoursStreamed = document.getElementById('twitch-hours-streamed');
 const twitchHoursWatched = document.getElementById('twitch-hours-watched');
+const twitchTotalViews = document.getElementById('twitch-total-views');
 const twitchEMV = document.getElementById('twitch-emv');
 const twitchCreatorRate = document.getElementById('twitch-creator-rate');
 const twitchROI = document.getElementById('twitch-roi');
 const twitchROIGroup = document.getElementById('twitch-roi-group');
 const twitchEngagement = document.getElementById('twitch-engagement');
-const twitchEngagementRate = document.getElementById('twitch-engagement-rate');
-const twitchEngagementRateGroup = document.getElementById('twitch-engagement-rate-group');
 
 function calculateTwitchMetrics() {
-  const accv = parseFloat(twitchACCV.value) || 0;
-  const hoursStreamed = parseFloat(twitchHoursStreamed.value) || 0;
-  const creatorRate = parseFloat(twitchCreatorRate.value) || 0;
-  const engagement = parseFloat(twitchEngagement.value) || 0;
+  const accv = parseFormattedNumber(twitchACCV.value);
+  const hoursStreamed = parseFormattedNumber(twitchHoursStreamed.value);
+  const creatorRate = parseFormattedNumber(twitchCreatorRate.value);
 
   // Total Hours Watched = ACCV * Total Hours Streamed
   const hoursWatched = accv * hoursStreamed;
 
+  // Total Views = Total Hours Watched * 12
+  const totalViews = hoursWatched * 12;
+
   // Estimated Media Value = Total Hours Watched * $1.2 USD
   const emv = hoursWatched * 1.2;
 
-  // Display calculated values with proper number formatting
+  // Display calculated values
   twitchHoursWatched.value = hoursWatched.toLocaleString('en-US', { maximumFractionDigits: 1 });
+  twitchTotalViews.value = totalViews.toLocaleString('en-US', { maximumFractionDigits: 0 });
   twitchEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 
   // Show/hide ROI field and calculate if Creator Rate is provided
   if (creatorRate > 0) {
     twitchROIGroup.style.display = 'block';
-    // ROI = EMV / Creator Rate
     const roi = emv / creatorRate;
     const roiClass = roi >= 1 ? 'positive' : 'negative';
     twitchROI.value = roi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -135,21 +117,8 @@ function calculateTwitchMetrics() {
     twitchROIGroup.style.display = 'none';
     twitchROI.value = '';
   }
-
-  // Show/hide Engagement Rate field and calculate if Engagement is provided
-  if (engagement > 0 && hoursWatched > 0) {
-    twitchEngagementRateGroup.style.display = 'block';
-    // Engagement Rate = (Engagement / Hours Watched) * 100
-    const engagementRate = (engagement / hoursWatched) * 100;
-    twitchEngagementRate.value = engagementRate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
-    twitchEngagementRate.className = 'calculated-field result-field';
-  } else {
-    twitchEngagementRateGroup.style.display = 'none';
-    twitchEngagementRate.value = '';
-  }
 }
 
-// Calculate whenever inputs change
 twitchACCV.addEventListener('input', calculateTwitchMetrics);
 twitchHoursStreamed.addEventListener('input', calculateTwitchMetrics);
 twitchCreatorRate.addEventListener('input', calculateTwitchMetrics);
@@ -168,31 +137,26 @@ const youtubeEngagementRate = document.getElementById('youtube-engagement-rate')
 const youtubeEngagementRateGroup = document.getElementById('youtube-engagement-rate-group');
 
 function calculateYouTubeMetrics() {
-  const views = parseFloat(youtubeViews.value) || 0;
-  const creatorRate = parseFloat(youtubeCreatorRate.value) || 0;
-  const engagement = parseFloat(youtubeEngagement.value) || 0;
+  const views = parseFormattedNumber(youtubeViews.value);
+  const creatorRate = parseFormattedNumber(youtubeCreatorRate.value);
+  const engagement = parseFormattedNumber(youtubeEngagement.value);
 
-  // Estimated Media Value = Total Views * $100 / 1000 = Views * 0.1
+  // EMV = Total Views * $100 / 1000
   const emv = views * 0.1;
 
-  // Display calculated values with proper number formatting
   youtubeEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 
-  // Show/hide ROI and Actual CPM fields if Creator Rate is provided
   if (creatorRate > 0 && views > 0) {
     youtubeROIGroup.style.display = 'block';
     youtubeCPMGroup.style.display = 'block';
 
-    // ROI = EMV / Creator Rate
     const roi = emv / creatorRate;
     const roiClass = roi >= 1 ? 'positive' : 'negative';
     youtubeROI.value = roi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     youtubeROI.className = 'calculated-field result-field ' + roiClass;
 
-    // Actual CPM = (Creator Rate / Total Views) * 1000
     const cpm = (creatorRate / views) * 1000;
     youtubeCPM.value = '$' + cpm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
-    youtubeCPM.className = 'calculated-field result-field';
   } else {
     youtubeROIGroup.style.display = 'none';
     youtubeCPMGroup.style.display = 'none';
@@ -200,20 +164,16 @@ function calculateYouTubeMetrics() {
     youtubeCPM.value = '';
   }
 
-  // Show/hide Engagement Rate field if Engagement is provided
   if (engagement > 0 && views > 0) {
     youtubeEngagementRateGroup.style.display = 'block';
-    // Engagement Rate = (Engagement / Total Views) * 100
     const engagementRate = (engagement / views) * 100;
     youtubeEngagementRate.value = engagementRate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
-    youtubeEngagementRate.className = 'calculated-field result-field';
   } else {
     youtubeEngagementRateGroup.style.display = 'none';
     youtubeEngagementRate.value = '';
   }
 }
 
-// Calculate whenever inputs change
 youtubeViews.addEventListener('input', calculateYouTubeMetrics);
 youtubeCreatorRate.addEventListener('input', calculateYouTubeMetrics);
 youtubeEngagement.addEventListener('input', calculateYouTubeMetrics);
@@ -231,31 +191,26 @@ const tiktokEngagementRate = document.getElementById('tiktok-engagement-rate');
 const tiktokEngagementRateGroup = document.getElementById('tiktok-engagement-rate-group');
 
 function calculateTikTokMetrics() {
-  const views = parseFloat(tiktokViews.value) || 0;
-  const creatorRate = parseFloat(tiktokCreatorRate.value) || 0;
-  const engagement = parseFloat(tiktokEngagement.value) || 0;
+  const views = parseFormattedNumber(tiktokViews.value);
+  const creatorRate = parseFormattedNumber(tiktokCreatorRate.value);
+  const engagement = parseFormattedNumber(tiktokEngagement.value);
 
-  // Estimated Media Value = Total Views * $30 / 1000 = Views * 0.03
+  // EMV = Total Views * $30 / 1000
   const emv = views * 0.03;
 
-  // Display calculated values with proper number formatting
   tiktokEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
 
-  // Show/hide ROI and Actual CPM fields if Creator Rate is provided
   if (creatorRate > 0 && views > 0) {
     tiktokROIGroup.style.display = 'block';
     tiktokCPMGroup.style.display = 'block';
 
-    // ROI = EMV / Creator Rate
     const roi = emv / creatorRate;
     const roiClass = roi >= 1 ? 'positive' : 'negative';
     tiktokROI.value = roi.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     tiktokROI.className = 'calculated-field result-field ' + roiClass;
 
-    // Actual CPM = (Creator Rate / Total Views) * 1000
     const cpm = (creatorRate / views) * 1000;
     tiktokCPM.value = '$' + cpm.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
-    tiktokCPM.className = 'calculated-field result-field';
   } else {
     tiktokROIGroup.style.display = 'none';
     tiktokCPMGroup.style.display = 'none';
@@ -263,66 +218,137 @@ function calculateTikTokMetrics() {
     tiktokCPM.value = '';
   }
 
-  // Show/hide Engagement Rate field if Engagement is provided
   if (engagement > 0 && views > 0) {
     tiktokEngagementRateGroup.style.display = 'block';
-    // Engagement Rate = (Engagement / Total Views) * 100
     const engagementRate = (engagement / views) * 100;
     tiktokEngagementRate.value = engagementRate.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
-    tiktokEngagementRate.className = 'calculated-field result-field';
   } else {
     tiktokEngagementRateGroup.style.display = 'none';
     tiktokEngagementRate.value = '';
   }
 }
 
-// Calculate whenever inputs change
 tiktokViews.addEventListener('input', calculateTikTokMetrics);
 tiktokCreatorRate.addEventListener('input', calculateTikTokMetrics);
 tiktokEngagement.addEventListener('input', calculateTikTokMetrics);
 
 // ============================================================
-// CSV UPLOAD MODE
+// CSV TEMPLATE DOWNLOADS
 // ============================================================
 
-// --- Drag & Drop + Click to Upload ---
-const dropZone = document.getElementById('drop-zone');
-const csvInput = document.getElementById('csv-input');
-
-dropZone.addEventListener('click', () => csvInput.click());
-
-dropZone.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  dropZone.classList.add('dragover');
+document.getElementById('download-twitch-template').addEventListener('click', () => {
+  const template = `creator_name,country,language,genre,accv,hours_streamed,creator_rate,engagement
+@ninja,USA,English,Gaming,15000,120,50000,250000
+@shroud,Canada,English,FPS,12000,100,45000,180000`;
+  downloadFile(template, 'twitch_campaign_template.csv', 'text/csv');
 });
 
-dropZone.addEventListener('dragleave', () => {
-  dropZone.classList.remove('dragover');
+document.getElementById('download-youtube-template').addEventListener('click', () => {
+  const template = `creator_name,country,language,genre,total_views,creator_rate,engagement
+PewDiePie,Sweden,English,Entertainment,5000000,100000,350000
+MrBeast,USA,English,Entertainment,25000000,500000,1500000`;
+  downloadFile(template, 'youtube_campaign_template.csv', 'text/csv');
 });
 
-dropZone.addEventListener('drop', (e) => {
+document.getElementById('download-tiktok-template').addEventListener('click', () => {
+  const template = `creator_name,country,language,genre,total_views,creator_rate,engagement
+@charlidamelio,USA,English,Dance,10000000,75000,800000
+@khaby.lame,Italy,Italian,Comedy,50000000,150000,3000000`;
+  downloadFile(template, 'tiktok_campaign_template.csv', 'text/csv');
+});
+
+// ============================================================
+// CAMPAIGN REPORT GENERATION
+// ============================================================
+
+const reportDropZone = document.getElementById('report-drop-zone');
+const reportCsvInput = document.getElementById('report-csv-input');
+const uploadedFileInfo = document.getElementById('uploaded-file-info');
+const uploadedFileName = document.getElementById('uploaded-file-name');
+const removeFileBtn = document.getElementById('remove-file');
+const deliverReportBtn = document.getElementById('deliver-report');
+const campaignReport = document.getElementById('campaign-report');
+
+let uploadedFile = null;
+
+reportDropZone.addEventListener('click', () => reportCsvInput.click());
+
+reportDropZone.addEventListener('dragover', (e) => {
   e.preventDefault();
-  dropZone.classList.remove('dragover');
+  reportDropZone.classList.add('dragover');
+});
+
+reportDropZone.addEventListener('dragleave', () => {
+  reportDropZone.classList.remove('dragover');
+});
+
+reportDropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  reportDropZone.classList.remove('dragover');
   const file = e.dataTransfer.files[0];
   if (file && file.name.endsWith('.csv')) {
-    processCSV(file);
+    handleFileUpload(file);
   }
 });
 
-csvInput.addEventListener('change', (e) => {
+reportCsvInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
-  if (file) processCSV(file);
+  if (file) handleFileUpload(file);
 });
 
-// --- CSV Parser ---
-// This reads a CSV file and turns each row into an object
-// using the header row as keys. It handles quoted fields and
-// trims whitespace so messy spreadsheet exports still work.
+function handleFileUpload(file) {
+  uploadedFile = file;
+  uploadedFileName.textContent = file.name;
+  uploadedFileInfo.classList.remove('hidden');
+  reportDropZone.style.display = 'none';
+  deliverReportBtn.disabled = false;
+}
+
+removeFileBtn.addEventListener('click', () => {
+  uploadedFile = null;
+  uploadedFileInfo.classList.add('hidden');
+  reportDropZone.style.display = 'block';
+  deliverReportBtn.disabled = true;
+  reportCsvInput.value = '';
+});
+
+deliverReportBtn.addEventListener('click', () => {
+  if (!uploadedFile) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const rawRows = parseCSV(e.target.result);
+    if (rawRows.length === 0) {
+      alert('No data found in CSV. Please check the format.');
+      return;
+    }
+
+    // Detect platform from CSV columns
+    const platform = detectPlatform(rawRows[0]);
+    const processedData = processCreatorData(rawRows, platform);
+
+    // Generate campaign name from filename
+    const campaignName = uploadedFile.name.replace('.csv', '').replace(/_/g, ' ');
+
+    generateCampaignReport(processedData, campaignName, platform);
+  };
+  reader.readAsText(uploadedFile);
+});
+
+function detectPlatform(row) {
+  if (row.accv !== undefined || row.hours_streamed !== undefined) {
+    return 'Twitch';
+  } else if (row.total_views !== undefined) {
+    // Check if it's TikTok or YouTube based on filename or default
+    return 'YouTube'; // Will be determined by context
+  }
+  return 'Unknown';
+}
+
 function parseCSV(text) {
   const lines = text.trim().split('\n');
   if (lines.length < 2) return [];
 
-  // Clean header names: lowercase, trim, replace spaces with underscores
   const headers = lines[0].split(',').map(h =>
     h.trim().toLowerCase().replace(/['"]/g, '').replace(/\s+/g, '_')
   );
@@ -342,54 +368,83 @@ function parseCSV(text) {
   return rows;
 }
 
-// --- Process CSV File ---
-function processCSV(file) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const rawRows = parseCSV(e.target.result);
-    if (rawRows.length === 0) {
-      alert('No data found in CSV. Please check the format.');
-      return;
+function processCreatorData(rows, platform) {
+  return rows.map(row => {
+    const creatorRate = parseFloat(row.creator_rate) || 0;
+    const engagement = parseFloat(row.engagement) || 0;
+
+    let views = 0;
+    let hoursWatched = 0;
+    let emv = 0;
+
+    if (platform === 'Twitch' || row.accv) {
+      const accv = parseFloat(row.accv) || 0;
+      const hoursStreamed = parseFloat(row.hours_streamed) || 0;
+      hoursWatched = accv * hoursStreamed;
+      views = hoursWatched * 12;
+      emv = hoursWatched * 1.2;
+    } else if (row.total_views) {
+      views = parseFloat(row.total_views) || 0;
+      // Detect if TikTok or YouTube based on EMV rate
+      if (uploadedFile.name.toLowerCase().includes('tiktok')) {
+        emv = views * 0.03; // $30 per 1000 views
+      } else {
+        emv = views * 0.1; // $100 per 1000 views
+      }
     }
 
-    // Calculate metrics for every row
-    const results = rawRows.map(row => calculateMetrics(row));
-    generateReport(results);
-  };
-  reader.readAsText(file);
+    const roi = creatorRate > 0 ? emv / creatorRate : 0;
+    const cpm = views > 0 && creatorRate > 0 ? (creatorRate / views) * 1000 : 0;
+    const engagementRate = views > 0 && engagement > 0 ? (engagement / views) * 100 : 0;
+
+    return {
+      creator_name: row.creator_name || 'Unknown',
+      country: row.country || 'N/A',
+      language: row.language || 'N/A',
+      genre: row.genre || 'N/A',
+      views,
+      hours_watched: hoursWatched,
+      creator_rate: creatorRate,
+      engagement,
+      emv,
+      roi,
+      cpm,
+      engagement_rate: engagementRate
+    };
+  });
 }
 
-// --- Generate Full Report ---
-function generateReport(campaigns) {
-  // Show the results section
-  document.getElementById('csv-results').classList.remove('hidden');
+function generateCampaignReport(data, campaignName, platform) {
+  campaignReport.classList.remove('hidden');
+  document.querySelector('.report-upload-section').style.display = 'none';
+
+  // Set campaign title
+  document.getElementById('campaign-title').textContent = campaignName;
   document.getElementById('report-date').textContent =
     'Generated: ' + new Date().toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 
-  // Calculate totals across all campaigns
-  const totals = campaigns.reduce((acc, c) => ({
-    spend: acc.spend + c.spend,
-    revenue: acc.revenue + c.revenue,
-    impressions: acc.impressions + c.impressions,
-    clicks: acc.clicks + c.clicks,
-    conversions: acc.conversions + c.conversions,
-    engagements: acc.engagements + c.engagements,
-  }), { spend: 0, revenue: 0, impressions: 0, clicks: 0, conversions: 0, engagements: 0 });
+  // Calculate totals
+  const totals = data.reduce((acc, c) => ({
+    creators: acc.creators + 1,
+    totalSpend: acc.totalSpend + c.creator_rate,
+    totalEMV: acc.totalEMV + c.emv,
+    totalViews: acc.totalViews + c.views,
+    totalEngagement: acc.totalEngagement + c.engagement
+  }), { creators: 0, totalSpend: 0, totalEMV: 0, totalViews: 0, totalEngagement: 0 });
 
-  const totalProfit = totals.revenue - totals.spend;
-  const totalROI = totals.spend > 0 ? ((totals.revenue - totals.spend) / totals.spend) * 100 : 0;
-  const avgEngRate = totals.impressions > 0 ? (totals.engagements / totals.impressions) * 100 : 0;
+  const avgROI = totals.totalSpend > 0 ? totals.totalEMV / totals.totalSpend : 0;
+  const avgEngagementRate = totals.totalViews > 0 ? (totals.totalEngagement / totals.totalViews) * 100 : 0;
 
   // Summary cards
   const summaryHTML = [
-    { label: 'Total Campaigns', value: campaigns.length, type: '' },
-    { label: 'Total Spend', value: formatCurrency(totals.spend), type: '' },
-    { label: 'Total Revenue', value: formatCurrency(totals.revenue), type: 'highlight' },
-    { label: 'Net Profit', value: formatCurrency(totalProfit), type: totalProfit >= 0 ? 'highlight' : 'warn' },
-    { label: 'Overall ROI', value: formatPercent(totalROI), type: totalROI >= 0 ? 'highlight' : 'warn' },
-    { label: 'Avg Engagement Rate', value: formatPercent(avgEngRate), type: '' },
+    { label: 'Total Creators', value: totals.creators.toLocaleString(), type: '' },
+    { label: 'Total Investment', value: '$' + totals.totalSpend.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), type: '' },
+    { label: 'Total EMV', value: '$' + totals.totalEMV.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), type: 'highlight' },
+    { label: 'Total Views', value: totals.totalViews.toLocaleString(), type: '' },
+    { label: 'Average ROI', value: avgROI.toFixed(2) + 'x', type: avgROI >= 1 ? 'highlight' : 'warn' },
+    { label: 'Avg Engagement Rate', value: avgEngagementRate.toFixed(2) + '%', type: '' },
   ].map(card => `
     <div class="summary-card ${card.type}">
       <div class="card-label">${card.label}</div>
@@ -399,96 +454,159 @@ function generateReport(campaigns) {
 
   document.getElementById('summary-cards').innerHTML = summaryHTML;
 
-  // Build the detail table
-  buildTable(campaigns);
+  // Generate insights
+  generateInsights(data, totals);
+
+  // Build table
+  buildReportTable(data);
 
   // Draw charts
-  drawCharts(campaigns);
+  drawReportCharts(data);
 
-  // Store for CSV export
-  window._reportCampaigns = campaigns;
+  // Store for export
+  window._reportData = data;
 }
 
-// --- Detail Table ---
-function buildTable(campaigns) {
+function generateInsights(data, totals) {
+  const insights = [];
+
+  // Top performer by EMV
+  const topByEMV = data.reduce((max, c) => c.emv > max.emv ? c : max, data[0]);
+  insights.push({
+    type: 'top-performer',
+    title: 'Top Performer (EMV)',
+    value: topByEMV.creator_name,
+    detail: '$' + topByEMV.emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' EMV'
+  });
+
+  // Best ROI
+  const topByROI = data.filter(c => c.roi > 0).reduce((max, c) => c.roi > max.roi ? c : max, data[0]);
+  if (topByROI.roi > 0) {
+    insights.push({
+      type: 'top-performer',
+      title: 'Best ROI',
+      value: topByROI.creator_name,
+      detail: topByROI.roi.toFixed(2) + 'x return on investment'
+    });
+  }
+
+  // Best engagement rate
+  const topByEngagement = data.filter(c => c.engagement_rate > 0).reduce((max, c) => c.engagement_rate > max.engagement_rate ? c : max, data[0]);
+  if (topByEngagement.engagement_rate > 0) {
+    insights.push({
+      type: 'info',
+      title: 'Highest Engagement',
+      value: topByEngagement.creator_name,
+      detail: topByEngagement.engagement_rate.toFixed(2) + '% engagement rate'
+    });
+  }
+
+  // Genre performance
+  const genrePerformance = {};
+  data.forEach(c => {
+    if (!genrePerformance[c.genre]) {
+      genrePerformance[c.genre] = { emv: 0, spend: 0, count: 0 };
+    }
+    genrePerformance[c.genre].emv += c.emv;
+    genrePerformance[c.genre].spend += c.creator_rate;
+    genrePerformance[c.genre].count++;
+  });
+
+  const bestGenre = Object.entries(genrePerformance)
+    .filter(([genre]) => genre !== 'N/A')
+    .map(([genre, data]) => ({ genre, roi: data.spend > 0 ? data.emv / data.spend : 0, emv: data.emv }))
+    .sort((a, b) => b.roi - a.roi)[0];
+
+  if (bestGenre) {
+    insights.push({
+      type: 'info',
+      title: 'Best Performing Genre',
+      value: bestGenre.genre,
+      detail: bestGenre.roi.toFixed(2) + 'x ROI | $' + bestGenre.emv.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' EMV'
+    });
+  }
+
+  // Country performance
+  const countryPerformance = {};
+  data.forEach(c => {
+    if (!countryPerformance[c.country]) {
+      countryPerformance[c.country] = { emv: 0, spend: 0, count: 0 };
+    }
+    countryPerformance[c.country].emv += c.emv;
+    countryPerformance[c.country].spend += c.creator_rate;
+    countryPerformance[c.country].count++;
+  });
+
+  const bestCountry = Object.entries(countryPerformance)
+    .filter(([country]) => country !== 'N/A')
+    .map(([country, data]) => ({ country, roi: data.spend > 0 ? data.emv / data.spend : 0, count: data.count }))
+    .sort((a, b) => b.roi - a.roi)[0];
+
+  if (bestCountry) {
+    insights.push({
+      type: 'info',
+      title: 'Top Country by ROI',
+      value: bestCountry.country,
+      detail: bestCountry.roi.toFixed(2) + 'x ROI from ' + bestCountry.count + ' creator(s)'
+    });
+  }
+
+  // Underperformers warning
+  const underperformers = data.filter(c => c.roi > 0 && c.roi < 0.5);
+  if (underperformers.length > 0) {
+    insights.push({
+      type: 'warning',
+      title: 'Underperforming Creators',
+      value: underperformers.length + ' creator(s)',
+      detail: 'ROI below 0.5x - consider reviewing partnership terms'
+    });
+  }
+
+  const insightsHTML = insights.map(insight => `
+    <div class="insight-card ${insight.type}">
+      <div class="insight-title">${insight.title}</div>
+      <div class="insight-value">${insight.value}</div>
+      <div class="insight-detail">${insight.detail}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('insights-grid').innerHTML = insightsHTML;
+}
+
+function buildReportTable(data) {
   const thead = document.querySelector('#report-table thead');
   const tbody = document.querySelector('#report-table tbody');
 
   thead.innerHTML = `<tr>
-    <th>Campaign</th><th>Platform</th><th>Spend</th><th>Revenue</th>
-    <th>Profit</th><th>ROI %</th><th>ROAS</th><th>CPM</th>
-    <th>CPC</th><th>CPA</th><th>CTR</th><th>Conv. Rate</th><th>Eng. Rate</th>
+    <th>Creator</th><th>Country</th><th>Language</th><th>Genre</th>
+    <th>Views</th><th>Creator Rate</th><th>EMV</th><th>ROI</th>
+    <th>Engagement</th><th>Eng. Rate</th>
   </tr>`;
 
-  tbody.innerHTML = campaigns.map(c => `<tr>
-    <td>${c.campaign_name}</td>
-    <td>${c.platform}</td>
-    <td>${formatCurrency(c.spend)}</td>
-    <td>${formatCurrency(c.revenue)}</td>
-    <td style="color: ${c.profit >= 0 ? '#8FDDAD' : '#E79B81'}">${formatCurrency(c.profit)}</td>
-    <td style="color: ${c.roi >= 0 ? '#8FDDAD' : '#E79B81'}">${formatPercent(c.roi)}</td>
-    <td>${c.roas.toFixed(2)}x</td>
-    <td>${formatCurrency(c.cpm)}</td>
-    <td>${formatCurrency(c.cpc)}</td>
-    <td>${formatCurrency(c.cpa)}</td>
-    <td>${formatPercent(c.ctr)}</td>
-    <td>${formatPercent(c.conversion_rate)}</td>
-    <td>${formatPercent(c.engagement_rate)}</td>
+  tbody.innerHTML = data.map(c => `<tr>
+    <td>${c.creator_name}</td>
+    <td>${c.country}</td>
+    <td>${c.language}</td>
+    <td>${c.genre}</td>
+    <td>${c.views.toLocaleString()}</td>
+    <td>$${c.creator_rate.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+    <td>$${c.emv.toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+    <td style="color: ${c.roi >= 1 ? '#8FDDAD' : '#E79B81'}">${c.roi.toFixed(2)}x</td>
+    <td>${c.engagement.toLocaleString()}</td>
+    <td>${c.engagement_rate.toFixed(2)}%</td>
   </tr>`).join('');
 }
 
-// --- Charts ---
 let chartInstances = [];
 
-function drawCharts(campaigns) {
-  // Destroy old charts if re-uploading
+function drawReportCharts(data) {
   chartInstances.forEach(c => c.destroy());
   chartInstances = [];
 
-  const labels = campaigns.map(c => c.campaign_name);
-  // AFK Brand Colors
-  const colors = [
-    '#A985DE', '#89BEED', '#8FDDAD', '#ECE970',
-    '#E79B81', '#ECE1F9', '#E1EFFA', '#E2F7EA',
-    '#F6F6C2', '#F5E5E3', '#888888', '#FFFFFF'
-  ];
+  const colors = ['#A985DE', '#89BEED', '#8FDDAD', '#ECE970', '#E79B81', '#ECE1F9', '#E1EFFA', '#E2F7EA'];
+  const labels = data.map(c => c.creator_name);
 
-  // Chart 1: Spend vs Revenue (bar chart)
-  chartInstances.push(new Chart(
-    document.getElementById('chart-spend-revenue'),
-    {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Spend',
-            data: campaigns.map(c => c.spend),
-            backgroundColor: '#A985DE',
-          },
-          {
-            label: 'Revenue',
-            data: campaigns.map(c => c.revenue),
-            backgroundColor: '#8FDDAD',
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'top' } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: val => '$' + val.toLocaleString()
-            }
-          }
-        }
-      }
-    }
-  ));
-
-  // Chart 2: ROI % (bar chart)
+  // ROI by Creator
   chartInstances.push(new Chart(
     document.getElementById('chart-roi'),
     {
@@ -496,123 +614,162 @@ function drawCharts(campaigns) {
       data: {
         labels,
         datasets: [{
-          label: 'ROI %',
-          data: campaigns.map(c => c.roi),
-          backgroundColor: campaigns.map(c => c.roi >= 0 ? '#8FDDAD' : '#E79B81'),
+          label: 'ROI',
+          data: data.map(c => c.roi),
+          backgroundColor: data.map(c => c.roi >= 1 ? '#8FDDAD' : '#E79B81'),
         }]
       },
       options: {
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: {
-          y: {
-            ticks: { callback: val => val + '%' }
-          }
-        }
+        scales: { y: { beginAtZero: true, ticks: { callback: val => val + 'x' } } }
       }
     }
   ));
 
-  // Chart 3: Engagement Rate (horizontal bar)
+  // EMV Distribution (doughnut)
   chartInstances.push(new Chart(
-    document.getElementById('chart-engagement'),
+    document.getElementById('chart-emv'),
     {
-      type: 'bar',
+      type: 'doughnut',
       data: {
         labels,
         datasets: [{
-          label: 'Engagement Rate %',
-          data: campaigns.map(c => c.engagement_rate),
-          backgroundColor: '#89BEED',
+          data: data.map(c => c.emv),
+          backgroundColor: colors.slice(0, data.length),
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } }
+      }
+    }
+  ));
+
+  // Top Performers (horizontal bar)
+  const topPerformers = [...data].sort((a, b) => b.emv - a.emv).slice(0, 5);
+  chartInstances.push(new Chart(
+    document.getElementById('chart-top-performers'),
+    {
+      type: 'bar',
+      data: {
+        labels: topPerformers.map(c => c.creator_name),
+        datasets: [{
+          label: 'EMV',
+          data: topPerformers.map(c => c.emv),
+          backgroundColor: '#A985DE',
         }]
       },
       options: {
         indexAxis: 'y',
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: {
-          x: {
-            ticks: { callback: val => val + '%' }
-          }
-        }
+        scales: { x: { ticks: { callback: val => '$' + val.toLocaleString() } } }
       }
     }
   ));
 
-  // Chart 4: Spend by Platform (doughnut)
-  const platformSpend = {};
-  campaigns.forEach(c => {
-    platformSpend[c.platform] = (platformSpend[c.platform] || 0) + c.spend;
+  // Genre Performance
+  const genreData = {};
+  data.forEach(c => {
+    if (!genreData[c.genre]) genreData[c.genre] = 0;
+    genreData[c.genre] += c.emv;
   });
-
   chartInstances.push(new Chart(
-    document.getElementById('chart-platform'),
+    document.getElementById('chart-genre'),
     {
-      type: 'doughnut',
+      type: 'pie',
       data: {
-        labels: Object.keys(platformSpend),
+        labels: Object.keys(genreData),
         datasets: [{
-          data: Object.values(platformSpend),
-          backgroundColor: colors.slice(0, Object.keys(platformSpend).length),
+          data: Object.values(genreData),
+          backgroundColor: colors.slice(0, Object.keys(genreData).length),
         }]
       },
       options: {
         responsive: true,
-        plugins: {
-          legend: { position: 'bottom' }
-        }
+        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } }
+      }
+    }
+  ));
+
+  // Country Performance
+  const countryData = {};
+  data.forEach(c => {
+    if (!countryData[c.country]) countryData[c.country] = 0;
+    countryData[c.country] += c.emv;
+  });
+  chartInstances.push(new Chart(
+    document.getElementById('chart-country'),
+    {
+      type: 'pie',
+      data: {
+        labels: Object.keys(countryData),
+        datasets: [{
+          data: Object.values(countryData),
+          backgroundColor: colors.slice(0, Object.keys(countryData).length),
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } } }
+      }
+    }
+  ));
+
+  // Investment vs Return
+  chartInstances.push(new Chart(
+    document.getElementById('chart-investment'),
+    {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Investment',
+            data: data.map(c => c.creator_rate),
+            backgroundColor: '#E79B81',
+          },
+          {
+            label: 'EMV Return',
+            data: data.map(c => c.emv),
+            backgroundColor: '#8FDDAD',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { ticks: { callback: val => '$' + val.toLocaleString() } } }
       }
     }
   ));
 }
 
 // ============================================================
-// EXPORT & DOWNLOAD FEATURES
+// EXPORT & PRINT
 // ============================================================
 
-// --- Download Report as CSV ---
 document.getElementById('download-report-csv').addEventListener('click', () => {
-  if (!window._reportCampaigns) return;
+  if (!window._reportData) return;
 
-  const campaigns = window._reportCampaigns;
-  const headers = [
-    'Campaign', 'Platform', 'Spend', 'Revenue', 'Profit', 'ROI %', 'ROAS',
-    'CPM', 'CPC', 'CPA', 'CTR %', 'Conversion Rate %', 'Engagement Rate %',
-    'Impressions', 'Clicks', 'Conversions', 'Engagements'
-  ];
+  const data = window._reportData;
+  const headers = ['Creator', 'Country', 'Language', 'Genre', 'Views', 'Creator Rate', 'EMV', 'ROI', 'Engagement', 'Engagement Rate'];
 
-  const rows = campaigns.map(c => [
-    c.campaign_name, c.platform,
-    c.spend.toFixed(2), c.revenue.toFixed(2), c.profit.toFixed(2),
-    c.roi.toFixed(2), c.roas.toFixed(2),
-    c.cpm.toFixed(2), c.cpc.toFixed(2), c.cpa.toFixed(2),
-    c.ctr.toFixed(2), c.conversion_rate.toFixed(2), c.engagement_rate.toFixed(2),
-    c.impressions, c.clicks, c.conversions, c.engagements
+  const rows = data.map(c => [
+    c.creator_name, c.country, c.language, c.genre,
+    c.views, c.creator_rate.toFixed(2), c.emv.toFixed(2), c.roi.toFixed(2),
+    c.engagement, c.engagement_rate.toFixed(2)
   ]);
 
   const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
   downloadFile(csvContent, 'campaign-report.csv', 'text/csv');
 });
 
-// --- Print Report ---
 document.getElementById('print-report').addEventListener('click', () => {
   window.print();
 });
 
-// --- Download Sample CSV ---
-document.getElementById('download-sample').addEventListener('click', () => {
-  const sample = `campaign_name,platform,spend,impressions,clicks,conversions,revenue,engagements
-Summer Skincare Launch,Instagram,5000,250000,5000,150,12000,8500
-Back to School Promo,TikTok,3000,400000,8000,200,9500,15000
-Holiday Gift Guide,YouTube,8000,180000,3600,300,25000,4200
-Flash Sale Weekend,Instagram,2000,150000,4500,180,8000,6200
-Wellness Series,Twitter/X,1500,90000,1800,50,3500,2800
-Product Unboxing,TikTok,4000,500000,12000,350,18000,22000`;
-
-  downloadFile(sample, 'sample-campaign-data.csv', 'text/csv');
-});
-
-// --- File Download Helper ---
 function downloadFile(content, filename, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);

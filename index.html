@@ -22,7 +22,8 @@
     <!-- Tab Navigation -->
     <div class="tabs">
       <button class="tab active" data-tab="manual">Influencer ROI Calculator</button>
-      <button class="tab" data-tab="csv">CSV Upload &amp; Report</button>
+      <button class="tab" data-tab="csv">CSV Templates</button>
+      <button class="tab" data-tab="report">Campaign Report</button>
     </div>
 
     <!-- Influencer ROI Calculator Tab -->
@@ -53,19 +54,19 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="twitch-accv">ACCV (Average Concurrent Viewers)</label>
-              <input type="number" id="twitch-accv" placeholder="e.g. 5000" min="0">
+              <input type="text" id="twitch-accv" placeholder="e.g. 5,000" min="0" class="formatted-number">
             </div>
             <div class="form-group">
               <label for="twitch-hours-streamed">Total Hours Streamed</label>
-              <input type="number" id="twitch-hours-streamed" placeholder="e.g. 120" min="0" step="0.1">
+              <input type="text" id="twitch-hours-streamed" placeholder="e.g. 120" min="0" class="formatted-number">
             </div>
             <div class="form-group">
               <label for="twitch-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
-              <input type="number" id="twitch-creator-rate" placeholder="e.g. 5000" min="0" step="0.01">
+              <input type="text" id="twitch-creator-rate" placeholder="e.g. 5,000" min="0" class="formatted-number">
             </div>
             <div class="form-group">
               <label for="twitch-engagement">Engagement <span class="optional-label">Optional</span></label>
-              <input type="number" id="twitch-engagement" placeholder="e.g. 25000" min="0">
+              <input type="text" id="twitch-engagement" placeholder="e.g. 25,000" min="0" class="formatted-number">
             </div>
           </div>
 
@@ -78,16 +79,16 @@
                 <input type="text" id="twitch-hours-watched" readonly class="calculated-field result-field">
               </div>
               <div class="result-box">
+                <label for="twitch-total-views">Total Views</label>
+                <input type="text" id="twitch-total-views" readonly class="calculated-field result-field">
+              </div>
+              <div class="result-box">
                 <label for="twitch-emv">Estimated Media Value (USD)</label>
                 <input type="text" id="twitch-emv" readonly class="calculated-field result-field">
               </div>
               <div class="result-box" id="twitch-roi-group" style="display: none;">
                 <label for="twitch-roi">ROI</label>
                 <input type="text" id="twitch-roi" readonly class="calculated-field result-field">
-              </div>
-              <div class="result-box" id="twitch-engagement-rate-group" style="display: none;">
-                <label for="twitch-engagement-rate">Engagement Rate</label>
-                <input type="text" id="twitch-engagement-rate" readonly class="calculated-field result-field">
               </div>
             </div>
           </div>
@@ -101,15 +102,15 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="youtube-views">Total Views</label>
-              <input type="number" id="youtube-views" placeholder="e.g. 500000" min="0">
+              <input type="text" id="youtube-views" placeholder="e.g. 500,000" min="0" class="formatted-number">
             </div>
             <div class="form-group">
               <label for="youtube-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
-              <input type="number" id="youtube-creator-rate" placeholder="e.g. 10000" min="0" step="0.01">
+              <input type="text" id="youtube-creator-rate" placeholder="e.g. 10,000" min="0" class="formatted-number">
             </div>
             <div class="form-group">
               <label for="youtube-engagement">Engagement <span class="optional-label">Optional</span></label>
-              <input type="number" id="youtube-engagement" placeholder="e.g. 50000" min="0">
+              <input type="text" id="youtube-engagement" placeholder="e.g. 50,000" min="0" class="formatted-number">
             </div>
           </div>
 
@@ -145,15 +146,15 @@
           <div class="form-grid">
             <div class="form-group">
               <label for="tiktok-views">Total Views</label>
-              <input type="number" id="tiktok-views" placeholder="e.g. 1000000" min="0">
+              <input type="text" id="tiktok-views" placeholder="e.g. 1,000,000" min="0" class="formatted-number">
             </div>
             <div class="form-group">
               <label for="tiktok-creator-rate">Creator Rate (USD) <span class="optional-label">Optional</span></label>
-              <input type="number" id="tiktok-creator-rate" placeholder="e.g. 3000" min="0" step="0.01">
+              <input type="text" id="tiktok-creator-rate" placeholder="e.g. 3,000" min="0" class="formatted-number">
             </div>
             <div class="form-group">
               <label for="tiktok-engagement">Engagement <span class="optional-label">Optional</span></label>
-              <input type="number" id="tiktok-engagement" placeholder="e.g. 100000" min="0">
+              <input type="text" id="tiktok-engagement" placeholder="e.g. 100,000" min="0" class="formatted-number">
             </div>
           </div>
 
@@ -184,59 +185,128 @@
       </form>
     </section>
 
-    <!-- CSV Upload Tab -->
+    <!-- CSV Templates Tab -->
     <section id="csv" class="tab-content">
-      <div class="csv-upload-area">
-        <div class="upload-box" id="drop-zone">
-          <div class="upload-icon">&#128196;</div>
-          <p>Drag & drop your CSV file here</p>
-          <p class="upload-hint">or click to browse</p>
-          <input type="file" id="csv-input" accept=".csv" hidden>
+      <div class="csv-templates-section">
+        <h2>Download CSV Templates</h2>
+        <p class="section-description">Select a platform to download the appropriate CSV template for your campaign data.</p>
+
+        <div class="template-cards">
+          <div class="template-card">
+            <div class="template-icon">&#127918;</div>
+            <h3>Twitch</h3>
+            <p>For streaming campaigns</p>
+            <p class="template-fields">Fields: Creator Name, Country, Language, Genre, ACCV, Hours Streamed, Creator Rate, Engagement</p>
+            <button class="btn btn-primary" id="download-twitch-template">Download Template</button>
+          </div>
+
+          <div class="template-card">
+            <div class="template-icon">&#9658;</div>
+            <h3>YouTube (Dedicated)</h3>
+            <p>For dedicated video campaigns</p>
+            <p class="template-fields">Fields: Creator Name, Country, Language, Genre, Total Views, Creator Rate, Engagement</p>
+            <button class="btn btn-primary" id="download-youtube-template">Download Template</button>
+          </div>
+
+          <div class="template-card">
+            <div class="template-icon">&#127926;</div>
+            <h3>TikTok</h3>
+            <p>For short-form video campaigns</p>
+            <p class="template-fields">Fields: Creator Name, Country, Language, Genre, Total Views, Creator Rate, Engagement</p>
+            <button class="btn btn-primary" id="download-tiktok-template">Download Template</button>
+          </div>
         </div>
+
         <div class="csv-format-help">
-          <h3>Expected CSV Format</h3>
-          <p>Your CSV should have these columns (order doesn't matter):</p>
-          <code>campaign_name, platform, spend, impressions, clicks, conversions, revenue, engagements</code>
-          <button class="btn btn-secondary" id="download-sample">Download Sample CSV</button>
+          <h3>How to Use</h3>
+          <ol>
+            <li>Download the template for your campaign platform</li>
+            <li>Fill in the creator data (one row per creator)</li>
+            <li>Save your file with a descriptive campaign name (e.g., "Summer2026_TwitchCampaign.csv")</li>
+            <li>Go to the <strong>Campaign Report</strong> tab to upload and generate your report</li>
+          </ol>
         </div>
       </div>
+    </section>
 
-      <div id="csv-results" class="hidden">
+    <!-- Campaign Report Tab -->
+    <section id="report" class="tab-content">
+      <div class="report-upload-section">
+        <h2>Generate Campaign Report</h2>
+        <p class="section-description">Upload your completed campaign CSV to generate a comprehensive analytics report.</p>
+
+        <div class="upload-box" id="report-drop-zone">
+          <div class="upload-icon">&#128202;</div>
+          <p>Drag & drop your campaign CSV here</p>
+          <p class="upload-hint">or click to browse</p>
+          <input type="file" id="report-csv-input" accept=".csv" hidden>
+        </div>
+
+        <div id="uploaded-file-info" class="uploaded-file-info hidden">
+          <span class="file-icon">&#128196;</span>
+          <span class="file-name" id="uploaded-file-name"></span>
+          <button class="btn-remove" id="remove-file">&times;</button>
+        </div>
+
+        <button class="btn btn-primary btn-large" id="deliver-report" disabled>Deliver Report</button>
+      </div>
+
+      <div id="campaign-report" class="hidden">
         <div class="report-header">
-          <h2>Campaign Performance Report</h2>
+          <h2 id="campaign-title">Campaign Performance Report</h2>
           <p class="report-date" id="report-date"></p>
           <div class="report-actions">
-            <button class="btn btn-primary" id="download-report-csv">Download Report CSV</button>
+            <button class="btn btn-primary" id="download-report-csv">Export to CSV</button>
             <button class="btn btn-secondary" id="print-report">Print Report</button>
           </div>
         </div>
 
-        <!-- Summary Cards -->
-        <div class="summary-cards" id="summary-cards"></div>
+        <!-- Executive Summary -->
+        <div class="executive-summary">
+          <h3>Executive Summary</h3>
+          <div class="summary-cards" id="summary-cards"></div>
+        </div>
 
-        <!-- Charts -->
-        <div class="charts-container">
-          <div class="chart-box">
-            <h3>Spend vs Revenue by Campaign</h3>
-            <canvas id="chart-spend-revenue"></canvas>
-          </div>
-          <div class="chart-box">
-            <h3>ROI % by Campaign</h3>
-            <canvas id="chart-roi"></canvas>
-          </div>
-          <div class="chart-box">
-            <h3>Engagement Rate by Campaign</h3>
-            <canvas id="chart-engagement"></canvas>
-          </div>
-          <div class="chart-box">
-            <h3>Spend Distribution by Platform</h3>
-            <canvas id="chart-platform"></canvas>
+        <!-- Performance Charts -->
+        <div class="charts-section">
+          <h3>Performance Analytics</h3>
+          <div class="charts-container">
+            <div class="chart-box">
+              <h4>ROI by Creator</h4>
+              <canvas id="chart-roi"></canvas>
+            </div>
+            <div class="chart-box">
+              <h4>EMV Distribution</h4>
+              <canvas id="chart-emv"></canvas>
+            </div>
+            <div class="chart-box">
+              <h4>Top Performers by EMV</h4>
+              <canvas id="chart-top-performers"></canvas>
+            </div>
+            <div class="chart-box">
+              <h4>Performance by Genre</h4>
+              <canvas id="chart-genre"></canvas>
+            </div>
+            <div class="chart-box">
+              <h4>Performance by Country</h4>
+              <canvas id="chart-country"></canvas>
+            </div>
+            <div class="chart-box">
+              <h4>Investment vs Return</h4>
+              <canvas id="chart-investment"></canvas>
+            </div>
           </div>
         </div>
 
-        <!-- Campaign Table -->
+        <!-- Top Insights -->
+        <div class="insights-section">
+          <h3>Key Insights</h3>
+          <div class="insights-grid" id="insights-grid"></div>
+        </div>
+
+        <!-- Detailed Table -->
         <div class="table-container">
-          <h3>Detailed Campaign Breakdown</h3>
+          <h3>Creator Performance Breakdown</h3>
           <div class="table-scroll">
             <table id="report-table">
               <thead></thead>
