@@ -478,6 +478,21 @@ footer {
   border-color: #2a2a2a !important;
 }
 
+.calculated-field.positive {
+  color: var(--afk-green) !important;
+}
+
+.calculated-field.negative {
+  color: var(--afk-orange) !important;
+}
+
+.optional-label {
+  font-size: 0.75rem;
+  color: var(--afk-grey);
+  font-weight: 300;
+  margin-left: 0.25rem;
+}
+
 .coming-soon {
   color: var(--afk-grey);
   font-style: italic;

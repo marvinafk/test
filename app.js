@@ -100,10 +100,14 @@ const twitchACCV = document.getElementById('twitch-accv');
 const twitchHoursStreamed = document.getElementById('twitch-hours-streamed');
 const twitchHoursWatched = document.getElementById('twitch-hours-watched');
 const twitchEMV = document.getElementById('twitch-emv');
+const twitchCreatorRate = document.getElementById('twitch-creator-rate');
+const twitchROI = document.getElementById('twitch-roi');
+const twitchROIGroup = document.getElementById('twitch-roi-group');
 
 function calculateTwitchMetrics() {
   const accv = parseFloat(twitchACCV.value) || 0;
   const hoursStreamed = parseFloat(twitchHoursStreamed.value) || 0;
+  const creatorRate = parseFloat(twitchCreatorRate.value) || 0;
 
   // Total Hours Watched = ACCV * Total Hours Streamed
   const hoursWatched = accv * hoursStreamed;
@@ -114,11 +118,25 @@ function calculateTwitchMetrics() {
   // Display calculated values
   twitchHoursWatched.value = hoursWatched.toLocaleString('en-US', { maximumFractionDigits: 1 });
   twitchEMV.value = '$' + emv.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD';
+
+  // Show/hide ROI field and calculate if Creator Rate is provided
+  if (creatorRate > 0) {
+    twitchROIGroup.style.display = 'block';
+    // ROI = (EMV - Creator Rate) / Creator Rate * 100
+    const roi = ((emv - creatorRate) / creatorRate) * 100;
+    const roiClass = roi >= 0 ? 'positive' : 'negative';
+    twitchROI.value = roi.toFixed(2) + '%';
+    twitchROI.className = 'calculated-field ' + roiClass;
+  } else {
+    twitchROIGroup.style.display = 'none';
+    twitchROI.value = '';
+  }
 }
 
 // Calculate whenever inputs change
 twitchACCV.addEventListener('input', calculateTwitchMetrics);
 twitchHoursStreamed.addEventListener('input', calculateTwitchMetrics);
+twitchCreatorRate.addEventListener('input', calculateTwitchMetrics);
 
 // ============================================================
 // CSV UPLOAD MODE
